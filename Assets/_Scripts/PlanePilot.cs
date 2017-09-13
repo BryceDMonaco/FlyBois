@@ -66,6 +66,17 @@ public class PlanePilot : MonoBehaviour {
     public float maxCamLookX = 30f;
     public float maxCamLookY = 30f;
 
+	//--------------------------------------------------------------------------------------------------------------//
+	[Header("Flap Variables")]
+	public Transform leftAileron;
+	public Transform rightAileron;
+
+	public Transform[] elevators;
+
+	public Transform rudder;
+
+    public float maxFlapAngle = 15f;
+
     //--------------------------------------------------------------------------------------------------------------//
     //Private Vars
     private Vector3 spawnPosition;
@@ -76,9 +87,6 @@ public class PlanePilot : MonoBehaviour {
     private int shotCycle = 0;
     private float screenW;
     private float screenH;
-
-    public float RSX;
-    public float RSY;
     
 
 	// Use this for initialization
@@ -111,21 +119,12 @@ public class PlanePilot : MonoBehaviour {
 	// Update is called once per frame
 	void Update ()
     {
-        RSX = myInDevice.RightStickX;
-        RSY = myInDevice.RightStickY;
-
         //myInDevice = InputManager.ActiveDevice;
 
         Vector3 moveCamTo = transform.position - transform.forward * 10f + Vector3.up * 5f;
 
         myCameraTransform.position =myCameraTransform.position * cameraSpring + moveCamTo * (1f - cameraSpring);
         myCameraTransform.LookAt(aimPoint);
-
-        if (!usingKeyboard)
-        {
-            DoCameraFreeLook ();
-
-        }
 
         if (isAlive)
         {
@@ -167,6 +166,8 @@ public class PlanePilot : MonoBehaviour {
 
             transform.Rotate(InputDirections);
 
+            UpdateFlaps ();
+
             //Legacy versions of the above function below:
             //transform.Rotate(myInDevice.LeftStickY * pitchDamp, yawDirection * yawDamp, -myInDevice.LeftStickX * rollDamp);
             //transform.Rotate(Input.GetAxis("Vertical") * pitchDamp, 0f, -Input.GetAxis("Horizontal") * rollDamp);
@@ -174,9 +175,9 @@ public class PlanePilot : MonoBehaviour {
             //Firing Controls
             if (canShoot && isAlive && myInDevice.RightTrigger.IsPressed)
             {
-                StartCoroutine(ShotTimer());
+                StartCoroutine (ShotTimer());
 
-                StartCoroutine(ShotLifetime(shotRenders[shotCycle]));
+                StartCoroutine (ShotLifetime(shotRenders[shotCycle]));
 
                 RaycastHit hit;
 
@@ -197,9 +198,7 @@ public class PlanePilot : MonoBehaviour {
                     shotCycle = 0;
 
                 }
-
             }
-
         }
     }
 
@@ -404,6 +403,7 @@ public class PlanePilot : MonoBehaviour {
     
     //This is more vector math than it really should be, this might need to be changed to fixed update to increase performance/
     //TODO: Get Free Look Down to behave more consistently and point more downwards
+	//This function might not actually be used, it is easy to cause motion sickness/very disorienting
     void DoCameraFreeLook ()
     {
         Vector3 startingPos = myCameraTransform.localRotation.eulerAngles;
@@ -426,5 +426,35 @@ public class PlanePilot : MonoBehaviour {
 
         myCameraTransform.localRotation = Quaternion.Euler(newPos);
        
+    }
+
+	void UpdateFlaps ()
+	{
+        float rudderDirection = 0f;
+
+        //Rudder
+        if (!usingKeyboard && myInDevice.LeftBumper.IsPressed && !myInDevice.RightBumper.IsPressed)         //Controller Yaw Left
+        {
+            rudderDirection = 1f;
+
+        }
+        else if (!usingKeyboard && myInDevice.RightBumper.IsPressed && !myInDevice.LeftBumper.IsPressed)  //Controller Yaw Right
+        {
+            rudderDirection = -1f;
+
+        }
+        else if (usingKeyboard && Input.GetKey(yawLeft) && !Input.GetKey(yawRight))   //KB Yaw Left
+        {
+            rudderDirection = 1f;
+
+        }
+        else if (usingKeyboard && Input.GetKey(yawRight) && !Input.GetKey(yawLeft))     //KB Yaw Right
+        {
+            rudderDirection = -1f;
+
+        }
+
+        rudder.localRotation = Quaternion.Euler(new Vector3(0f, rudderDirection * maxFlapAngle, 0f));
+
     }
 }
