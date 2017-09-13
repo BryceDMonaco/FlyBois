@@ -7,11 +7,13 @@ using InControl;
 public class PlanePilot : MonoBehaviour {
     //public PlayerActions Actions { get; set; }
 
-    public int playerNumber = 1;
+    public int playerNumber = 1;        //Eventually this number will be assigned 
 
-    public bool usingKeyboard = false; //Should be under control variables but it's a commonly used var
+    public bool usingKeyboard = false;  //Should be under control variables but it's a commonly used var
 
     public int playerHealth = 100;
+
+    private bool isAlive = true;
     //--------------------------------------------------------------------------------------------------------------//
     [Header("Speed Values")]
     public float speed = 50f;
@@ -40,6 +42,10 @@ public class PlanePilot : MonoBehaviour {
 
     public int numberOfGuns = 4;
     public int gunDamage = 10;
+
+    private bool canShoot = true;
+    private int shotCycle = 0;
+
     //--------------------------------------------------------------------------------------------------------------//
     [Header("Effects Variables")]
     public SmokeTrail[] wingTrails;
@@ -66,25 +72,30 @@ public class PlanePilot : MonoBehaviour {
     public float maxCamLookX = 30f;
     public float maxCamLookY = 30f;
 
-	//--------------------------------------------------------------------------------------------------------------//
-	[Header("Flap Variables")]
+    private InputDevice myInDevice;
+
+    //--------------------------------------------------------------------------------------------------------------//
+    [Header("Flap Variables")]
 	public Transform leftAileron;
 	public Transform rightAileron;
 
-	public Transform[] elevators;
+	public Transform leftElevator;
+    public Transform rightElevator;
 
-	public Transform rudder;
+    public Transform rudder;
 
     public float maxFlapAngle = 15f;
 
+    private Quaternion leftAileronRestingRotation;
+    private Quaternion rightAileronRestingRotation;
+    private Quaternion leftElevatorRestingRotation;
+    private Quaternion rightElevatorRestingRotation;
+
     //--------------------------------------------------------------------------------------------------------------//
     //Private Vars
+    //Note these do not really have a good spot to sort them to
     private Vector3 spawnPosition;
     private Quaternion spawnRotation;
-    private InputDevice myInDevice;
-    private bool canShoot = true;
-    private bool isAlive = true;
-    private int shotCycle = 0;
     private float screenW;
     private float screenH;
     
@@ -113,8 +124,12 @@ public class PlanePilot : MonoBehaviour {
 
         screenH = Screen.height / 2;
         screenW = Screen.width / 2;
-		
-	}
+
+        GetFlapRestingRotation();
+
+
+
+    }
 	
 	// Update is called once per frame
 	void Update ()
@@ -455,6 +470,60 @@ public class PlanePilot : MonoBehaviour {
         }
 
         rudder.localRotation = Quaternion.Euler(new Vector3(0f, rudderDirection * maxFlapAngle, 0f));
+
+        float aileronDirection = 0f;
+
+        //Ailerons
+        if (!usingKeyboard) //Controller Roll Left and Right
+        {
+            aileronDirection = -myInDevice.LeftStickX;
+
+        }
+        else if (usingKeyboard && Input.GetKey(rollLeft) && !Input.GetKey(rollRight))  //KB Roll left
+        {
+            aileronDirection = 1f;
+
+        }
+        else if (usingKeyboard && Input.GetKey(rollRight) && !Input.GetKey(rollLeft))  //KB Roll Right
+        {
+            aileronDirection = -1f;
+
+        }
+
+        leftAileron.localRotation = Quaternion.Euler(new Vector3(maxFlapAngle, 0f, 0f) * -aileronDirection + leftAileronRestingRotation.eulerAngles);
+        rightAileron.localRotation = Quaternion.Euler(new Vector3(maxFlapAngle, 0f, 0f) * aileronDirection + rightAileronRestingRotation.eulerAngles);
+
+        float elevatorDirection = 0f;
+
+        //Elevators
+        if (!usingKeyboard) //Controller Pitch Up and Down
+        {
+            elevatorDirection = myInDevice.LeftStickY;
+
+        }
+        else if (usingKeyboard && Input.GetKey(pitchUp) && !Input.GetKey(pitchDown))  //KB Pitch Up
+        {
+            elevatorDirection = -1f;
+
+        }
+        else if (usingKeyboard && Input.GetKey(pitchDown) && !Input.GetKey(pitchUp))  //KB Pitch Down
+        {
+            elevatorDirection = 1f;
+
+        }
+
+        leftElevator.localRotation = Quaternion.Euler(new Vector3(maxFlapAngle, 0f, 0f) * -elevatorDirection + leftElevatorRestingRotation.eulerAngles);
+        rightElevator.localRotation = Quaternion.Euler(new Vector3(maxFlapAngle, 0f, 0f) * -elevatorDirection + rightElevatorRestingRotation.eulerAngles);
+
+    }
+
+    void GetFlapRestingRotation ()
+    {
+        leftAileronRestingRotation = leftAileron.localRotation;
+        rightAileronRestingRotation = rightAileron.localRotation;
+
+        leftElevatorRestingRotation = leftElevator.localRotation;
+        rightElevatorRestingRotation = rightElevator.localRotation;
 
     }
 }
