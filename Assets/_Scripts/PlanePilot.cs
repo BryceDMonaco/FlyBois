@@ -72,6 +72,9 @@ public class PlanePilot : MonoBehaviour {
     public float maxCamLookX = 30f;
     public float maxCamLookY = 30f;
 
+    public float stickYSensitivity = 1f;
+    public float stickXSensitivity = 1f;
+
     private InputDevice myInDevice;
 
     //--------------------------------------------------------------------------------------------------------------//
@@ -354,7 +357,7 @@ public class PlanePilot : MonoBehaviour {
         //Pitch
         if (!usingKeyboard) //Controller Pitch Up and Down
         {
-            inputs.x = myInDevice.LeftStickY;
+            inputs.x = myInDevice.LeftStickY * stickYSensitivity;
 
         }
         else if (usingKeyboard && Input.GetKey(pitchUp) && !Input.GetKey(pitchDown))  //KB Pitch Up
@@ -393,7 +396,7 @@ public class PlanePilot : MonoBehaviour {
         //Roll
         if (!usingKeyboard) //Controller Roll Left and Right
         {
-            inputs.z = -myInDevice.LeftStickX;
+            inputs.z = -myInDevice.LeftStickX * stickXSensitivity;
 
         }
         else if (usingKeyboard && Input.GetKey(rollLeft) && !Input.GetKey(rollRight))  //KB Roll left
