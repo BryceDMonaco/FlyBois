@@ -1,5 +1,5 @@
 #import <objc/runtime.h>
-#import "iCadeManager.h"
+#import "ICadeManager.h"
 #import "ICadeReaderView.h"
 
 

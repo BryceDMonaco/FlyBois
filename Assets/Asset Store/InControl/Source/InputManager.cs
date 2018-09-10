@@ -5,12 +5,13 @@ namespace InControl
 	using System.Collections.ObjectModel;
 	using UnityEngine;
 
+
 #if NETFX_CORE
 	using System.Reflection;
 #endif
 
 
-	public class InputManager
+	public static class InputManager
 	{
 		public static readonly VersionInfo Version = VersionInfo.InControlVersion();
 
@@ -25,13 +26,15 @@ namespace InControl
 		internal static event Action<ulong, float> OnUpdateDevices;
 		internal static event Action<ulong, float> OnCommitDevices;
 
-		static List<InputDeviceManager> deviceManagers = new List<InputDeviceManager>();
-		static Dictionary<Type, InputDeviceManager> deviceManagerTable = new Dictionary<Type, InputDeviceManager>();
+		static readonly List<InputDeviceManager> deviceManagers = new List<InputDeviceManager>();
+		static readonly Dictionary<Type, InputDeviceManager> deviceManagerTable = new Dictionary<Type, InputDeviceManager>();
+
+		static readonly List<InputDevice> devices = new List<InputDevice>();
 
 		static InputDevice activeDevice = InputDevice.Null;
-		static List<InputDevice> devices = new List<InputDevice>();
+		static readonly List<InputDevice> activeDevices = new List<InputDevice>();
 
-		static List<PlayerActionSet> playerActionSets = new List<PlayerActionSet>();
+		static readonly List<PlayerActionSet> playerActionSets = new List<PlayerActionSet>();
 
 
 		/// <summary>
@@ -42,6 +45,13 @@ namespace InControl
 		/// Do not treat this collection as a list of players.
 		/// </summary>
 		public static ReadOnlyCollection<InputDevice> Devices;
+
+		/// <summary>
+		/// A readonly collection of active devices.
+		/// An active device is any device that has returned input from a non-passive control
+		/// during the last update tick.
+		/// </summary>
+		public static ReadOnlyCollection<InputDevice> ActiveDevices;
 
 		/// <summary>
 		/// Query whether a command button was pressed on any device during the last frame of input.
@@ -117,13 +127,19 @@ namespace InControl
 
 			deviceManagers.Clear();
 			deviceManagerTable.Clear();
+
 			devices.Clear();
-			Devices = new ReadOnlyCollection<InputDevice>( devices );
+			Devices = devices.AsReadOnly();
+
 			activeDevice = InputDevice.Null;
+			activeDevices.Clear();
+			ActiveDevices = activeDevices.AsReadOnly();
 
 			playerActionSets.Clear();
 
-			// TODO: Can this move further down along with the OnSetup callback?
+			// TODO: Can this move further down after the UnityInputDeviceManager is added, which is more intuitive?
+			// Currently it's used to verify we're in or after setup for various functions that are
+			// called during manager initialization. There should be a safer way... maybe add IsReset?
 			IsSetup = true;
 
 			var enableUnityInput = true;
@@ -134,6 +150,13 @@ namespace InControl
 				enableUnityInput = false;
 			}
 
+#if ENABLE_WINMD_SUPPORT && !UNITY_XBOXONE && !UNITY_EDITOR
+			if (UWPDeviceManager.Enable())
+			{
+				enableUnityInput = false;
+			}
+#endif
+
 #if UNITY_STANDALONE_WIN || UNITY_EDITOR
 			if (EnableXInput && enableUnityInput)
 			{
@@ -141,7 +164,7 @@ namespace InControl
 			}
 #endif
 
-#if UNITY_IOS
+#if UNITY_IOS || UNITY_TVOS
 			if (EnableICade)
 			{
 				ICadeDeviceManager.Enable();
@@ -162,8 +185,8 @@ namespace InControl
 			}
 #endif
 
-			// TODO: Can this move further down after the UnityInputDeviceManager is added?
-			// Currently, it allows use of InputManager.HideDevicesWithProfile()
+			// TODO: Can this move further down after the UnityInputDeviceManager is added, which is more intuitive?
+			// Currently, it allows use of InputManager.HideDevicesWithProfile() to be called in OnSetup, which is possibly useful?
 			if (OnSetup != null)
 			{
 				OnSetup.Invoke();
@@ -261,9 +284,17 @@ namespace InControl
 			UpdateDevices( deltaTime );
 			CommitDevices( deltaTime );
 
+			var lastActiveDevice = ActiveDevice;
 			UpdateActiveDevice();
 
 			UpdatePlayerActionSets( deltaTime );
+
+			// We wait to trigger OnActiveDeviceChanged until after UpdatePlayerActionSets
+			// so binding name changes will have updated, which is more intuitive.
+			if (lastActiveDevice != ActiveDevice && OnActiveDeviceChanged != null)
+			{
+				OnActiveDeviceChanged.Invoke( ActiveDevice );
+			}
 
 			if (OnUpdate != null)
 			{
@@ -352,9 +383,8 @@ namespace InControl
 		}
 
 
-		internal static void OnApplicationPause( bool pauseState )
-		{
-		}
+		// ReSharper disable once UnusedParameter.Global
+		internal static void OnApplicationPause( bool pauseState ) {}
 
 
 		internal static void OnApplicationQuit()
@@ -399,7 +429,8 @@ namespace InControl
 		/// Adds a device manager by type.
 		/// </summary>
 		/// <typeparam name="T">A subclass of InputDeviceManager.</typeparam>
-		public static void AddDeviceManager<T>() where T : InputDeviceManager, new()
+		public static void AddDeviceManager<T>()
+			where T : InputDeviceManager, new()
 		{
 			AddDeviceManager( new T() );
 		}
@@ -409,10 +440,11 @@ namespace InControl
 		/// Get a device manager from the input manager by type if it one is present.
 		/// </summary>
 		/// <typeparam name="T">A subclass of InputDeviceManager.</typeparam>
-		public static T GetDeviceManager<T>() where T : InputDeviceManager
+		public static T GetDeviceManager<T>()
+			where T : InputDeviceManager
 		{
 			InputDeviceManager deviceManager;
-			if (deviceManagerTable.TryGetValue( typeof( T ), out deviceManager ))
+			if (deviceManagerTable.TryGetValue( typeof(T), out deviceManager ))
 			{
 				return deviceManager as T;
 			}
@@ -425,9 +457,10 @@ namespace InControl
 		/// Query whether a device manager is present by type.
 		/// </summary>
 		/// <typeparam name="T">A subclass of InputDeviceManager.</typeparam>
-		public static bool HasDeviceManager<T>() where T : InputDeviceManager
+		public static bool HasDeviceManager<T>()
+			where T : InputDeviceManager
 		{
-			return deviceManagerTable.ContainsKey( typeof( T ) );
+			return deviceManagerTable.ContainsKey( typeof(T) );
 		}
 
 
@@ -474,6 +507,7 @@ namespace InControl
 				var device = devices[i];
 				device.OnDetached();
 			}
+
 			devices.Clear();
 			activeDevice = InputDevice.Null;
 		}
@@ -518,23 +552,21 @@ namespace InControl
 
 		static void UpdateActiveDevice()
 		{
-			var lastActiveDevice = ActiveDevice;
+			activeDevices.Clear();
 
 			var deviceCount = devices.Count;
 			for (var i = 0; i < deviceCount; i++)
 			{
-				var inputDevice = devices[i];
-				if (inputDevice.LastChangedAfter( ActiveDevice ) && !inputDevice.Passive)
-				{
-					ActiveDevice = inputDevice;
-				}
-			}
+				var device = devices[i];
 
-			if (lastActiveDevice != ActiveDevice)
-			{
-				if (OnActiveDeviceChanged != null)
+				if (device.LastInputAfter( ActiveDevice ) && !device.Passive)
 				{
-					OnActiveDeviceChanged( ActiveDevice );
+					ActiveDevice = device;
+				}
+
+				if (device.IsActive)
+				{
+					activeDevices.Add( device );
 				}
 			}
 		}
@@ -615,10 +647,10 @@ namespace InControl
 #if NETFX_CORE
 			if (type.GetTypeInfo().IsAssignableFrom( typeof( UnityInputDeviceProfile ).GetTypeInfo() ))
 #else
-			if (type.IsSubclassOf( typeof( UnityInputDeviceProfile ) ))
+			if (type.IsSubclassOf( typeof(UnityInputDeviceProfile) ))
 #endif
 			{
-				UnityInputDeviceProfile.Hide( type );
+				InputDeviceProfile.Hide( type );
 			}
 		}
 
@@ -650,7 +682,7 @@ namespace InControl
 
 		/// <summary>
 		/// Detects whether any (keyboard) key is currently pressed.
-		/// For more flexibility, see <see cref="KeyCombo.Detect()"/>
+		/// For more flexibility, see <see cref="KeyCombo.Detect(bool)"/>
 		/// </summary>
 		public static bool AnyKeyIsPressed
 		{
@@ -670,12 +702,12 @@ namespace InControl
 		{
 			get
 			{
-				return (activeDevice == null) ? InputDevice.Null : activeDevice;
+				return activeDevice ?? InputDevice.Null;
 			}
 
 			private set
 			{
-				activeDevice = (value == null) ? InputDevice.Null : value;
+				activeDevice = value ?? InputDevice.Null;
 			}
 		}
 
@@ -709,13 +741,14 @@ namespace InControl
 				}
 			}
 		}
+
 		static bool enabled;
 
 
 		/// <summary>
 		/// Suspend input updates when the application loses focus.
 		/// When enabled and the app loses focus, input will be cleared and no.
-		/// input updates will be processed. Input updates will resume when the app 
+		/// input updates will be processed. Input updates will resume when the app
 		/// regains focus.
 		/// </summary>
 		public static bool SuspendInBackground { get; internal set; }
@@ -759,8 +792,8 @@ namespace InControl
 		/// Set Native Input on Windows to use XInput.
 		/// When set to true (default), XInput will be utilized which better supports
 		/// compatible controllers (such as Xbox 360 and Xbox One gamepads) including
-		/// vibration control and proper separated triggers, but limits the number of 
-		/// these controllers to four. Additional XInput-compatible beyond four 
+		/// vibration control and proper separated triggers, but limits the number of
+		/// these controllers to four. Additional XInput-compatible beyond four
 		/// controllers will be ignored.
 		/// DirectInput will be used for all non-XInput-compatible controllers.
 		/// </summary>
@@ -789,6 +822,7 @@ namespace InControl
 		/// whether XInput is supported on this platform and if so, it will add
 		/// an XInputDeviceManager.
 		/// </summary>
+		// ReSharper disable once UnusedAutoPropertyAccessor.Global
 		public static bool EnableICade { get; internal set; }
 
 
@@ -806,7 +840,7 @@ namespace InControl
 		}
 
 
-		internal static ulong CurrentTick
+		public static ulong CurrentTick
 		{
 			get
 			{

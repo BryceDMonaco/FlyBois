@@ -167,7 +167,12 @@ namespace InControl
 		public override void Vibrate( float leftMotor, float rightMotor )
 		{
 #if UNITY_XBOXONE
-			GamepadPlugin.SetGamepadVibration( ControllerId, leftMotor, rightMotor, 0, 0 );
+			GamepadPlugin.SetGamepadVibration(
+				ControllerId,
+				Mathf.Clamp01( leftMotor ),
+				Mathf.Clamp01( rightMotor ),
+				0, 0
+			);
 #endif
 		}
 
@@ -175,7 +180,13 @@ namespace InControl
 		public void Vibrate( float leftMotor, float rightMotor, float leftTrigger, float rightTrigger )
 		{
 #if UNITY_XBOXONE
-			GamepadPlugin.SetGamepadVibration( ControllerId, leftMotor, rightMotor, leftTrigger, rightTrigger );
+			GamepadPlugin.SetGamepadVibration(
+				ControllerId,
+				Mathf.Clamp01( leftMotor ),
+				Mathf.Clamp01( rightMotor ),
+				Mathf.Clamp01( leftTrigger ),
+				Mathf.Clamp01( rightTrigger )
+			);
 #endif
 		}
 

@@ -2,6 +2,7 @@
 namespace InControl
 {
 	using System;
+	using System.Collections.Generic;
 	using System.IO;
 	using System.Text.RegularExpressions;
 	using UnityEditor;
@@ -19,10 +20,11 @@ namespace InControl
 
 		static void DiscoverProfiles()
 		{
-			var unityInputDeviceProfileType = typeof( UnityInputDeviceProfile );
-			var autoDiscoverAttributeType = typeof( InControl.AutoDiscover );
+			var unityInputDeviceProfileType = typeof(UnityInputDeviceProfile);
+			var autoDiscoverAttributeType = typeof(InControl.AutoDiscover);
 
-			var code2 = "";
+			var names = new List<string>();
+
 			foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
 			{
 				foreach (var type in assembly.GetTypes())
@@ -30,30 +32,38 @@ namespace InControl
 					if (type.IsSubclassOf( unityInputDeviceProfileType ))
 					{
 						var typeAttrs = type.GetCustomAttributes( autoDiscoverAttributeType, false );
-						if (typeAttrs != null && typeAttrs.Length > 0)
+						if (typeAttrs.Length > 0)
 						{
-							code2 += "\t\t\t\"" + type.FullName + "\"," + Environment.NewLine;
+							names.Add( type.FullName );
 						}
 					}
 				}
 			}
 
+			names.Sort();
+
+			var code2 = "";
+			foreach (var name in names)
+			{
+				code2 += "\t\t\t\"" + name + "\"," + Environment.NewLine;
+			}
+
 			var instance = ScriptableObject.CreateInstance<UnityInputDeviceProfileList>();
 			var filePath = AssetDatabase.GetAssetPath( MonoScript.FromScriptableObject( instance ) );
-			ScriptableObject.DestroyImmediate( instance );
+			UnityEngine.Object.DestroyImmediate( instance );
 
-			string code1 = @"namespace InControl
+			const string code1 = @"namespace InControl
 {
 	using UnityEngine;
 
 
 	public class UnityInputDeviceProfileList : ScriptableObject
 	{
-		public static string[] Profiles = new string[] 
+		public static readonly string[] Profiles = new string[]
 		{
 ";
 
-			string code3 = @"		};
+			const string code3 = @"		};
 	}
 }";
 
@@ -67,7 +77,7 @@ namespace InControl
 
 		static string GetFileContents( string fileName )
 		{
-			StreamReader streamReader = new StreamReader( fileName );
+			var streamReader = new StreamReader( fileName );
 			var fileContents = streamReader.ReadToEnd();
 			streamReader.Close();
 
@@ -105,4 +115,3 @@ namespace InControl
 	}
 }
 #endif
-

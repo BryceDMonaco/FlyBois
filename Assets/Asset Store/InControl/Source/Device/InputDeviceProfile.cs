@@ -7,34 +7,34 @@ namespace InControl
 
 	public abstract class InputDeviceProfile
 	{
-		[SerializeField]
+		// [SerializeField]
 		public string Name { get; protected set; }
 
-		[SerializeField]
+		// [SerializeField]
 		public string Meta { get; protected set; }
 
-		[SerializeField]
+		// [SerializeField]
 		public InputControlMapping[] AnalogMappings { get; protected set; }
 
-		[SerializeField]
+		// [SerializeField]
 		public InputControlMapping[] ButtonMappings { get; protected set; }
 
-		[SerializeField]
+		// [SerializeField]
 		public string[] IncludePlatforms { get; protected set; }
 
-		[SerializeField]
+		// [SerializeField]
 		public string[] ExcludePlatforms { get; protected set; }
 
-		[SerializeField]
+		// [SerializeField]
 		public int MaxSystemBuildNumber { get; protected set; }
 
-		[SerializeField]
+		// [SerializeField]
 		public int MinSystemBuildNumber { get; protected set; }
 
-		[SerializeField]
+		// [SerializeField]
 		public InputDeviceClass DeviceClass { get; protected set; }
 
-		[SerializeField]
+		// [SerializeField]
 		public InputDeviceStyle DeviceStyle { get; protected set; }
 
 		static HashSet<Type> hideList = new HashSet<Type>();
@@ -63,7 +63,7 @@ namespace InControl
 		}
 
 
-		[SerializeField]
+		// [SerializeField]
 		public float Sensitivity
 		{
 			get { return sensitivity; }
@@ -71,7 +71,7 @@ namespace InControl
 		}
 
 
-		[SerializeField]
+		// [SerializeField]
 		public float LowerDeadZone
 		{
 			get { return lowerDeadZone; }
@@ -79,7 +79,7 @@ namespace InControl
 		}
 
 
-		[SerializeField]
+		// [SerializeField]
 		public float UpperDeadZone
 		{
 			get { return upperDeadZone; }
@@ -90,15 +90,9 @@ namespace InControl
 		[Obsolete( "This property has been renamed to IncludePlatforms.", false )]
 		public string[] SupportedPlatforms
 		{
-			get
-			{
-				return IncludePlatforms;
-			}
+			get { return IncludePlatforms; }
 
-			protected set
-			{
-				IncludePlatforms = value;
-			}
+			protected set { IncludePlatforms = value; }
 		}
 
 
@@ -111,6 +105,7 @@ namespace InControl
 				{
 					return false;
 				}
+
 				if (MinSystemBuildNumber > 0 && systemBuildNumber < MinSystemBuildNumber)
 				{
 					return false;
@@ -175,4 +170,3 @@ namespace InControl
 		}
 	}
 }
-

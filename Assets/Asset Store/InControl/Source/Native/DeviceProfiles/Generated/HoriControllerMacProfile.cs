@@ -13,6 +13,14 @@ namespace InControl.NativeProfile
 
 			Matchers = new[] {
 				new NativeInputDeviceMatcher {
+					VendorID = 0x0f0d,
+					ProductID = 0x0067,
+				},
+				new NativeInputDeviceMatcher {
+					VendorID = 0x0f0d,
+					ProductID = 0x0100,
+				},
+				new NativeInputDeviceMatcher {
 					VendorID = 0x1bad,
 					ProductID = 0x5500,
 				},

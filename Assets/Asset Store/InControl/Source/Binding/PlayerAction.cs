@@ -44,7 +44,7 @@
 		public BindingSourceType LastInputType = BindingSourceType.None;
 
 		/// <summary>
-		/// Occurs when the binding source type that last provided input to this action changes.
+		/// This event is triggered when the binding source type that last provided input to this action changes.
 		/// </summary>
 		public event Action<BindingSourceType> OnLastInputTypeChanged;
 
@@ -64,23 +64,32 @@
 		public InputDeviceStyle LastDeviceStyle = InputDeviceStyle.Unknown;
 
 		/// <summary>
+		/// This event is triggered if bindings on an action are added or removed.
+		/// </summary>
+		public event Action OnBindingsChanged;
+
+		/// <summary>
 		/// This property can be used to store whatever arbitrary game data you want on this action.
 		/// </summary>
 		public object UserData { get; set; }
 
-		List<BindingSource> defaultBindings = new List<BindingSource>();
-		List<BindingSource> regularBindings = new List<BindingSource>();
-		List<BindingSource> visibleBindings = new List<BindingSource>();
+		readonly List<BindingSource> defaultBindings = new List<BindingSource>();
+		readonly List<BindingSource> regularBindings = new List<BindingSource>();
+		readonly List<BindingSource> visibleBindings = new List<BindingSource>();
 
 		readonly ReadOnlyCollection<BindingSource> bindings;
 		readonly ReadOnlyCollection<BindingSource> unfilteredBindings;
 
-		readonly static BindingSourceListener[] bindingSourceListeners = new BindingSourceListener[] {
+		static readonly BindingSourceListener[] bindingSourceListeners =
+		{
 			new DeviceBindingSourceListener(),
 			new UnknownDeviceBindingSourceListener(),
 			new KeyBindingSourceListener(),
 			new MouseBindingSourceListener()
 		};
+
+		bool triggerBindingEnded;
+		bool triggerBindingChanged;
 
 
 		/// <summary>
@@ -131,6 +140,8 @@
 					visibleBindings.Add( binding );
 				}
 			}
+
+			// triggerBindingChanged = true;
 		}
 
 
@@ -206,6 +217,8 @@
 				visibleBindings.Add( binding );
 			}
 
+			triggerBindingChanged = true;
+
 			return true;
 		}
 
@@ -255,6 +268,8 @@
 				visibleBindings.Insert( index, binding );
 			}
 
+			triggerBindingChanged = true;
+
 			return true;
 		}
 
@@ -297,6 +312,8 @@
 				visibleBindings[index] = withBinding;
 			}
 
+			triggerBindingChanged = true;
+
 			return true;
 		}
 
@@ -305,7 +322,7 @@
 		/// Searches all the bindings on this action to see if any that match
 		/// the provided binding object.
 		/// </summary>
-		/// <returns><c>true</c>, if a matching binding is found on this action, 
+		/// <returns><c>true</c>, if a matching binding is found on this action,
 		/// <c>false</c> otherwise.</returns>
 		/// <param name="binding">The BindingSource template to search for.</param>
 		public bool HasBinding( BindingSource binding )
@@ -350,9 +367,9 @@
 		/// <summary>
 		/// Searches all the bindings on this action to see if any that match
 		/// the provided binding object and, if found, removes it.
-		/// Unlike RemoveBinding, this immediately removes it from the Bindings 
+		/// Unlike RemoveBinding, this immediately removes it from the Bindings
 		/// collection and updates the visible set.
-		/// WARNING: This is unsafe to call unless absolutely sure it won't be 
+		/// WARNING: This is unsafe to call unless absolutely sure it won't be
 		/// called while anything is iterating over the Bindings collection.
 		/// </summary>
 		/// <param name="binding">The BindingSource template to search for.</param>
@@ -372,6 +389,7 @@
 					foundBinding.BoundTo = null;
 					regularBindings.RemoveAt( bindingIndex );
 					UpdateVisibleBindings();
+					triggerBindingChanged = true;
 				}
 			}
 		}
@@ -380,8 +398,8 @@
 		/// <summary>
 		/// Searches all the bindings on this action to see if any that match
 		/// the provided binding object and, if found, removes it.
-		/// NOTE: the action is only marked for removal, and is not immediately 
-		/// removed. This is to allow for safe removal during iteration over the 
+		/// NOTE: the action is only marked for removal, and is not immediately
+		/// removed. This is to allow for safe removal during iteration over the
 		/// Bindings collection.
 		/// </summary>
 		/// <param name="binding">The BindingSource template to search for.</param>
@@ -393,6 +411,7 @@
 				if (foundBinding.BoundTo == this)
 				{
 					foundBinding.BoundTo = null;
+					triggerBindingChanged = true;
 				}
 			}
 		}
@@ -400,8 +419,8 @@
 
 		/// <summary>
 		/// Removes the binding at the specified index from the action.
-		/// Note: the action is only marked for removal, and is not immediately 
-		/// removed. This is to allow for safe removal during iteration over the 
+		/// Note: the action is only marked for removal, and is not immediately
+		/// removed. This is to allow for safe removal during iteration over the
 		/// Bindings collection.
 		/// </summary>
 		/// <param name="index">The index of the BindingSource in the Bindings collection to remove.</param>
@@ -413,6 +432,7 @@
 			}
 
 			regularBindings[index].BoundTo = null;
+			triggerBindingChanged = true;
 		}
 
 
@@ -428,6 +448,7 @@
 					count += 1;
 				}
 			}
+
 			return count;
 		}
 
@@ -442,6 +463,7 @@
 				{
 					binding.BoundTo = null;
 					regularBindings.RemoveAt( i );
+					triggerBindingChanged = true;
 					return;
 				}
 			}
@@ -473,8 +495,11 @@
 			{
 				regularBindings[i].BoundTo = null;
 			}
+
 			regularBindings.Clear();
 			visibleBindings.Clear();
+
+			triggerBindingChanged = true;
 		}
 
 
@@ -499,6 +524,8 @@
 					visibleBindings.Add( binding );
 				}
 			}
+
+			triggerBindingChanged = true;
 		}
 
 
@@ -542,6 +569,7 @@
 			if (IsListeningForBinding)
 			{
 				Owner.listenWithAction = null;
+				triggerBindingEnded = true;
 			}
 		}
 
@@ -601,7 +629,25 @@
 		internal void Update( ulong updateTick, float deltaTime, InputDevice device )
 		{
 			Device = device;
+
 			UpdateBindings( updateTick, deltaTime );
+
+			if (triggerBindingChanged)
+			{
+				if (OnBindingsChanged != null)
+				{
+					OnBindingsChanged.Invoke();
+				}
+
+				triggerBindingChanged = false;
+			}
+
+			if (triggerBindingEnded)
+			{
+				(ListenOptions ?? Owner.ListenOptions).CallOnBindingEnded( this );
+				triggerBindingEnded = false;
+			}
+
 			DetectBindings();
 		}
 
@@ -625,6 +671,7 @@
 				{
 					regularBindings.RemoveAt( i );
 					visibleBindings.Remove( binding );
+					triggerBindingChanged = true;
 				}
 				else
 				{
@@ -654,7 +701,7 @@
 			if (lastInputTypeChangedTick > LastInputTypeChangedTick)
 			{
 				if (lastInputType != BindingSourceType.MouseBindingSource ||
-					Utility.Abs( LastValue - Value ) >= MouseBindingSource.JitterThreshold)
+				    Utility.Abs( LastValue - Value ) >= MouseBindingSource.JitterThreshold)
 				{
 					var triggerEvent = lastInputType != LastInputType;
 
@@ -754,6 +801,7 @@
 							{
 								var removeIndex = Mathf.Max( 0, IndexOfFirstInvalidBinding() );
 								regularBindings.RemoveAt( removeIndex );
+								triggerBindingChanged = true;
 							}
 						}
 					}
@@ -788,6 +836,7 @@
 
 
 		InputDevice device;
+
 		internal InputDevice Device
 		{
 			get
@@ -813,6 +862,7 @@
 
 
 		InputDevice activeDevice;
+
 		/// <summary>
 		/// Gets the currently active device (controller) if present, otherwise returns a null device which does nothing.
 		/// The currently active device is defined as the last device that provided input to this action.
@@ -822,7 +872,7 @@
 		{
 			get
 			{
-				return (activeDevice == null) ? InputDevice.Null : activeDevice;
+				return activeDevice ?? InputDevice.Null;
 			}
 		}
 
@@ -832,7 +882,7 @@
 			get
 			{
 				return LastInputType == BindingSourceType.DeviceBindingSource ||
-					   LastInputType == BindingSourceType.UnknownDeviceBindingSource;
+				       LastInputType == BindingSourceType.UnknownDeviceBindingSource;
 			}
 		}
 
@@ -883,27 +933,27 @@
 
 				switch (bindingSourceType)
 				{
-				case BindingSourceType.None:
-					continue;
+					case BindingSourceType.None:
+						continue;
 
-				case BindingSourceType.DeviceBindingSource:
-					bindingSource = new DeviceBindingSource();
-					break;
+					case BindingSourceType.DeviceBindingSource:
+						bindingSource = new DeviceBindingSource();
+						break;
 
-				case BindingSourceType.KeyBindingSource:
-					bindingSource = new KeyBindingSource();
-					break;
+					case BindingSourceType.KeyBindingSource:
+						bindingSource = new KeyBindingSource();
+						break;
 
-				case BindingSourceType.MouseBindingSource:
-					bindingSource = new MouseBindingSource();
-					break;
+					case BindingSourceType.MouseBindingSource:
+						bindingSource = new MouseBindingSource();
+						break;
 
-				case BindingSourceType.UnknownDeviceBindingSource:
-					bindingSource = new UnknownDeviceBindingSource();
-					break;
+					case BindingSourceType.UnknownDeviceBindingSource:
+						bindingSource = new UnknownDeviceBindingSource();
+						break;
 
-				default:
-					throw new InControlException( "Don't know how to load BindingSourceType: " + bindingSourceType );
+					default:
+						throw new InControlException( "Don't know how to load BindingSourceType: " + bindingSourceType );
 				}
 
 				bindingSource.Load( reader, dataFormatVersion );

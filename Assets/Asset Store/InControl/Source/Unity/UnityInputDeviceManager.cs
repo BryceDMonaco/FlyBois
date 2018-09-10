@@ -10,8 +10,8 @@ namespace InControl
 		const float deviceRefreshInterval = 1.0f;
 		float deviceRefreshTimer = 0.0f;
 
-		List<UnityInputDeviceProfileBase> systemDeviceProfiles = new List<UnityInputDeviceProfileBase>( UnityInputDeviceProfileList.Profiles.Length );
-		List<UnityInputDeviceProfileBase> customDeviceProfiles = new List<UnityInputDeviceProfileBase>();
+		readonly List<UnityInputDeviceProfileBase> systemDeviceProfiles = new List<UnityInputDeviceProfileBase>( UnityInputDeviceProfileList.Profiles.Length );
+		readonly List<UnityInputDeviceProfileBase> customDeviceProfiles = new List<UnityInputDeviceProfileBase>();
 
 		string[] joystickNames;
 		int lastJoystickCount;
@@ -61,10 +61,7 @@ namespace InControl
 
 		bool JoystickInfoHasChanged
 		{
-			get
-			{
-				return joystickHash != lastJoystickHash || joystickCount != lastJoystickCount;
-			}
+			get { return joystickHash != lastJoystickHash || joystickCount != lastJoystickCount; }
 		}
 
 
@@ -85,6 +82,7 @@ namespace InControl
 			{
 				InputManager.DetachDevice( devices[i] );
 			}
+
 			devices.Clear();
 		}
 
@@ -161,7 +159,7 @@ namespace InControl
 				return;
 			}
 
-			#if UNITY_PS4
+#if UNITY_PS4
 			if (unityJoystickName == "Empty")
 			{
 				// On PS4 console, disconnected controllers may have this name.
@@ -179,11 +177,11 @@ namespace InControl
 			if (InputManager.UnityVersion < new VersionInfo( 4, 5, 0, 0 ))
 			{
 				if (Application.platform == RuntimePlatform.OSXEditor ||
-					Application.platform == RuntimePlatform.OSXPlayer
+				    Application.platform == RuntimePlatform.OSXPlayer
 #if !UNITY_5_4_OR_NEWER
 					|| Application.platform == RuntimePlatform.OSXWebPlayer
 #endif
-				   )
+				)
 				{
 					if (unityJoystickName == "Unknown Wireless Controller")
 					{
@@ -197,11 +195,11 @@ namespace InControl
 			if (InputManager.UnityVersion >= new VersionInfo( 4, 6, 3, 0 ))
 			{
 				if (Application.platform == RuntimePlatform.WindowsEditor ||
-					Application.platform == RuntimePlatform.WindowsPlayer
+				    Application.platform == RuntimePlatform.WindowsPlayer
 #if !UNITY_5_4_OR_NEWER
 					|| Application.platform == RuntimePlatform.WindowsWebPlayer
 #endif
-				   )
+				)
 				{
 					if (String.IsNullOrEmpty( unityJoystickName ))
 					{
@@ -245,7 +243,7 @@ namespace InControl
 			{
 				var joystickDevice = new UnityInputDevice( deviceProfile, unityJoystickId, unityJoystickName );
 				AttachDevice( joystickDevice );
-//				Debug.Log( "[InControl] Joystick " + unityJoystickId + ": \"" + unityJoystickName + "\"" );
+				//				Debug.Log( "[InControl] Joystick " + unityJoystickId + ": \"" + unityJoystickName + "\"" );
 				Logger.LogInfo( "Device " + unityJoystickId + " matched profile " + deviceProfile.GetType().Name + " (" + deviceProfile.Name + ")" );
 			}
 			else

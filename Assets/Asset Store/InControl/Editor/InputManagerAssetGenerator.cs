@@ -11,7 +11,7 @@ namespace InControl
 	internal class InputManagerAssetGenerator
 	{
 		const string productName = "InControl";
-		static List<AxisPreset> axisPresets = new List<AxisPreset>();
+		static readonly List<AxisPreset> axisPresets = new List<AxisPreset>();
 
 
 		static InputManagerAssetGenerator()
@@ -56,7 +56,7 @@ namespace InControl
 				return false;
 			}
 
-			for (int i = 0; i < axisPresets.Count; i++)
+			for (var i = 0; i < axisPresets.Count; i++)
 			{
 				var axisEntry = axisArray.GetArrayElementAtIndex( i );
 				if (!axisPresets[i].EqualTo( axisEntry ))
@@ -80,7 +80,7 @@ namespace InControl
 			axisArray.arraySize = axisPresets.Count;
 			serializedObject.ApplyModifiedProperties();
 
-			for (int i = 0; i < axisPresets.Count; i++)
+			for (var i = 0; i < axisPresets.Count; i++)
 			{
 				var axisEntry = axisArray.GetArrayElementAtIndex( i );
 				axisPresets[i].ApplyTo( ref axisEntry );
@@ -103,9 +103,9 @@ namespace InControl
 
 		static void CreateRequiredAxisPresets()
 		{
-			for (int device = 1; device <= UnityInputDevice.MaxDevices; device++)
+			for (var device = 1; device <= UnityInputDevice.MaxDevices; device++)
 			{
-				for (int analog = 0; analog < UnityInputDevice.MaxAnalogs; analog++)
+				for (var analog = 0; analog < UnityInputDevice.MaxAnalogs; analog++)
 				{
 					axisPresets.Add( new AxisPreset( device, analog ) );
 				}
@@ -120,7 +120,7 @@ namespace InControl
 		static void ImportExistingAxisPresets()
 		{
 			var axisArray = GetInputManagerAxisArray();
-			for (int i = 0; i < axisArray.arraySize; i++)
+			for (var i = 0; i < axisArray.arraySize; i++)
 			{
 				var axisEntry = axisArray.GetArrayElementAtIndex( i );
 				var axisPreset = new AxisPreset( axisEntry );
@@ -141,7 +141,8 @@ namespace InControl
 
 			if (!HasAxisPreset( "Horizontal" ))
 			{
-				axisPresets.Add( new AxisPreset() {
+				axisPresets.Add( new AxisPreset()
+				{
 					name = "Horizontal",
 					negativeButton = "left",
 					positiveButton = "right",
@@ -156,7 +157,8 @@ namespace InControl
 					joyNum = 0
 				} );
 
-				axisPresets.Add( new AxisPreset() {
+				axisPresets.Add( new AxisPreset()
+				{
 					name = "Horizontal",
 					gravity = 0.0f,
 					deadZone = 0.19f,
@@ -169,7 +171,8 @@ namespace InControl
 
 			if (!HasAxisPreset( "Vertical" ))
 			{
-				axisPresets.Add( new AxisPreset() {
+				axisPresets.Add( new AxisPreset()
+				{
 					name = "Vertical",
 					negativeButton = "down",
 					positiveButton = "up",
@@ -184,7 +187,8 @@ namespace InControl
 					joyNum = 0
 				} );
 
-				axisPresets.Add( new AxisPreset() {
+				axisPresets.Add( new AxisPreset()
+				{
 					name = "Vertical",
 					gravity = 0.0f,
 					deadZone = 0.19f,
@@ -198,7 +202,8 @@ namespace InControl
 
 			if (!HasAxisPreset( "Submit" ))
 			{
-				axisPresets.Add( new AxisPreset() {
+				axisPresets.Add( new AxisPreset()
+				{
 					name = "Submit",
 					positiveButton = "return",
 					altPositiveButton = "joystick button 0",
@@ -210,7 +215,8 @@ namespace InControl
 					joyNum = 0
 				} );
 
-				axisPresets.Add( new AxisPreset() {
+				axisPresets.Add( new AxisPreset()
+				{
 					name = "Submit",
 					positiveButton = "enter",
 					altPositiveButton = "space",
@@ -225,7 +231,8 @@ namespace InControl
 
 			if (!HasAxisPreset( "Cancel" ))
 			{
-				axisPresets.Add( new AxisPreset() {
+				axisPresets.Add( new AxisPreset()
+				{
 					name = "Cancel",
 					positiveButton = "escape",
 					altPositiveButton = "joystick button 1",
@@ -242,7 +249,7 @@ namespace InControl
 
 		static bool HasAxisPreset( string name )
 		{
-			for (int i = 0; i < axisPresets.Count; i++)
+			for (var i = 0; i < axisPresets.Count; i++)
 			{
 				if (axisPresets[i].name == name)
 				{
@@ -264,7 +271,7 @@ namespace InControl
 
 		static SerializedProperty GetChildProperty( SerializedProperty parent, string name )
 		{
-			SerializedProperty child = parent.Copy();
+			var child = parent.Copy();
 			child.Next( true );
 
 			do
@@ -368,10 +375,11 @@ namespace InControl
 				get
 				{
 					if (Regex.Match( name, @"^joystick \d+ analog \d+$" ).Success ||
-						Regex.Match( name, @"^mouse (x|y|z)$" ).Success)
+					    Regex.Match( name, @"^mouse (x|y|z)$" ).Success)
 					{
 						return true;
 					}
+
 					return false;
 				}
 			}
@@ -436,4 +444,3 @@ namespace InControl
 	}
 }
 #endif
-

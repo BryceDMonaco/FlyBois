@@ -18,7 +18,7 @@ namespace InControl
 		SerializedProperty dontDestroyOnLoad;
 		SerializedProperty suspendInBackground;
 
-		SerializedProperty customProfiles;
+//		SerializedProperty customProfiles;
 
 		SerializedProperty enableICade;
 
@@ -45,7 +45,7 @@ namespace InControl
 			dontDestroyOnLoad = serializedObject.FindProperty( "dontDestroyOnLoad" );
 			suspendInBackground = serializedObject.FindProperty( "suspendInBackground" );
 
-			customProfiles = serializedObject.FindProperty( "customProfiles" );
+//			customProfiles = serializedObject.FindProperty( "customProfiles" );
 
 			enableICade = serializedObject.FindProperty( "enableICade" );
 
@@ -94,7 +94,7 @@ namespace InControl
 			EditorUtility.EndGroup();
 
 
-			EditorUtility.GroupTitle( "Enable ICade (iOS only)", enableICade );
+			EditorUtility.GroupTitle( "Enable ICade (iOS/tvOS only)", enableICade );
 
 
 			EditorUtility.GroupTitle( "Enable XInput (Windows only)", enableXInput );
@@ -124,7 +124,7 @@ namespace InControl
 				EditorUtility.BeginGroup();
 
 				var text1 = "" +
-							"<b>Warning: <color=#cc0000>This feature is in BETA!</color></b>\n" +
+//							"<b>Warning: <color=#cc0000>This feature is in BETA!</color></b>\n" +
 							"Enabling native input will disable using Unity input internally, " +
 							"but should provide more efficient and robust input support.";
 				EditorUtility.SetTintColor();
@@ -146,17 +146,17 @@ namespace InControl
 				EditorUtility.EndGroup();
 			}
 
-			EditorUtility.SetTintColor();
-			GUILayout.Space( 4.0f );
-			GUILayout.BeginVertical( "", EditorUtility.titleStyle );
-			EditorGUILayout.LabelField( "<b>Custom Profiles</b>  <color=#c00>(DEPRECATED)</color>", EditorUtility.labelStyle );
-			GUILayout.EndVertical();
-			EditorUtility.PopTintColor();
+//			EditorUtility.SetTintColor();
+//			GUILayout.Space( 4.0f );
+//			GUILayout.BeginVertical( "", EditorUtility.titleStyle );
+//			EditorGUILayout.LabelField( "<b>Custom Profiles</b>  <color=#c00>(DEPRECATED)</color>", EditorUtility.labelStyle );
+//			GUILayout.EndVertical();
+//			EditorUtility.PopTintColor();
+//			GUILayout.Space( -6.0f );
+//			ReorderableListGUI.ListField( customProfiles );
+//			GUILayout.Space( 3.0f );
 
-			GUILayout.Space( -6.0f );
-			ReorderableListGUI.ListField( customProfiles );
-			GUILayout.Space( 3.0f );
-
+			GUILayout.Space( 10.0f );
 
 			serializedObject.ApplyModifiedProperties();
 		}

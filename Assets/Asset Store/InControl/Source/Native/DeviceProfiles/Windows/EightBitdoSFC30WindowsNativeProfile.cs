@@ -1,10 +1,7 @@
-namespace InControl
+namespace InControl.NativeProfile
 {
-	using System;
-
-
 	// @cond nodoc
-	[AutoDiscover] 
+	[AutoDiscover]
 	public class EightBitdoSFC30WindowsNativeProfile : NativeInputDeviceProfile
 	{
 		public EightBitdoSFC30WindowsNativeProfile()

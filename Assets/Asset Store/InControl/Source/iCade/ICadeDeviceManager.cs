@@ -1,4 +1,4 @@
-﻿#if UNITY_IOS || UNITY_EDITOR
+﻿#if UNITY_IOS || UNITY_TVOS || UNITY_EDITOR
 namespace InControl
 {
 	using System.Collections.Generic;
@@ -8,20 +8,17 @@ namespace InControl
 
 	public class ICadeDeviceManager : InputDeviceManager
 	{
-		InputDevice device;
-		RingBuffer<ICadeState> state;
-		Thread thread;
-		int timeStep;
-		int bufferSize;
+		readonly InputDevice device;
+		readonly RingBuffer<ICadeState> state;
+		readonly int timeStep;
 		bool active;
+		Thread thread;
 
 
 		public ICadeDeviceManager()
 		{
 			timeStep = Mathf.FloorToInt( Time.fixedDeltaTime * 1000.0f );
-			bufferSize = 1;
-			state = new RingBuffer<ICadeState>( bufferSize );
-
+			state = new RingBuffer<ICadeState>( 1 );
 			device = new ICadeDevice( this );
 			devices.Add( device );
 		}
@@ -54,7 +51,7 @@ namespace InControl
 			get
 			{
 				var deviceManager = InputManager.GetDeviceManager<ICadeDeviceManager>();
-				return deviceManager == null ? false : deviceManager.active;
+				return deviceManager != null && deviceManager.active;
 			}
 
 			set
@@ -72,8 +69,10 @@ namespace InControl
 		{
 			if (thread == null)
 			{
-				thread = new Thread( Worker );
-				thread.IsBackground = true;
+				thread = new Thread( Worker )
+				{
+					IsBackground = true
+				};
 				thread.Start();
 			}
 		}
@@ -119,14 +118,15 @@ namespace InControl
 
 		public static bool CheckPlatformSupport( ICollection<string> errors )
 		{
-			return Application.platform == RuntimePlatform.IPhonePlayer;
+			return Application.platform == RuntimePlatform.IPhonePlayer ||
+			       Application.platform == RuntimePlatform.tvOS;
 		}
 
 
 		internal static void Enable()
 		{
 			var errors = new List<string>();
-			if (ICadeDeviceManager.CheckPlatformSupport( errors ))
+			if (CheckPlatformSupport( errors ))
 			{
 				InputManager.AddDeviceManager<ICadeDeviceManager>();
 			}
@@ -141,4 +141,3 @@ namespace InControl
 	}
 }
 #endif
-

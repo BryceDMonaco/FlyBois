@@ -2,15 +2,15 @@ namespace InControl
 {
 	public class InputControl : OneAxisInputControl
 	{
-		public static readonly InputControl Null = new InputControl();
+		public static readonly InputControl Null = new InputControl { isNullControl = true };
 
 		public string Handle { get; protected set; }
 		public InputControlType Target { get; protected set; }
 
 		/// <summary>
 		/// When a control is passive, it will not cause a device to be considered active.
-        /// This is useful for certain controls that spam data, like gyro or
-        /// accelerometer input.
+		/// This is useful for certain controls that spam data, like gyro or
+		/// accelerometer input.
 		/// Defaults to <code>false</code>.
 		/// </summary>
 		public bool Passive;
@@ -22,7 +22,7 @@ namespace InControl
 		ulong zeroTick;
 
 
-		private InputControl()
+		InputControl()
 		{
 			Handle = "None";
 			Target = InputControlType.None;
@@ -57,7 +57,10 @@ namespace InControl
 
 		internal bool IsOnZeroTick
 		{
-			get { return UpdateTick == zeroTick; }
+			get
+			{
+				return UpdateTick == zeroTick;
+			}
 		}
 
 

@@ -2,6 +2,7 @@
 namespace InControl
 {
 	using System;
+	using System.Collections.Generic;
 	using System.IO;
 	using System.Text.RegularExpressions;
 	using UnityEditor;
@@ -19,36 +20,45 @@ namespace InControl
 
 		static void DiscoverProfiles()
 		{
-			var nativeInputDeviceProfileType = typeof( NativeInputDeviceProfile );
+			var nativeInputDeviceProfileType = typeof(NativeInputDeviceProfile);
 
-			var code2 = "";
+			var names = new List<string>();
+
 			foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
 			{
 				foreach (var type in assembly.GetTypes())
 				{
 					if (type.IsSubclassOf( nativeInputDeviceProfileType ))
 					{
-						code2 += "\t\t\t\"" + type.FullName + "\"," + Environment.NewLine;
+						names.Add( type.FullName );
 					}
 				}
 			}
 
+			names.Sort();
+
+			var code2 = "";
+			foreach (var name in names)
+			{
+				code2 += "\t\t\t\"" + name + "\"," + Environment.NewLine;
+			}
+
 			var instance = ScriptableObject.CreateInstance<NativeInputDeviceProfileList>();
 			var filePath = AssetDatabase.GetAssetPath( MonoScript.FromScriptableObject( instance ) );
-			ScriptableObject.DestroyImmediate( instance );
+			UnityEngine.Object.DestroyImmediate( instance );
 
-			string code1 = @"namespace InControl
+			const string code1 = @"namespace InControl
 {
 	using UnityEngine;
 
 
 	public class NativeInputDeviceProfileList : ScriptableObject
 	{
-		public static string[] Profiles = new string[] 
+		public static readonly string[] Profiles = new string[]
 		{
 ";
 
-			string code3 = @"		};
+			const string code3 = @"		};
 	}
 }";
 
@@ -62,7 +72,7 @@ namespace InControl
 
 		static string GetFileContents( string fileName )
 		{
-			StreamReader streamReader = new StreamReader( fileName );
+			var streamReader = new StreamReader( fileName );
 			var fileContents = streamReader.ReadToEnd();
 			streamReader.Close();
 
@@ -78,7 +88,7 @@ namespace InControl
 				return false;
 			}
 
-			StreamWriter streamWriter = new StreamWriter( filePath );
+			var streamWriter = new StreamWriter( filePath );
 			streamWriter.Write( content );
 			streamWriter.Flush();
 			streamWriter.Close();
@@ -100,4 +110,3 @@ namespace InControl
 	}
 }
 #endif
-

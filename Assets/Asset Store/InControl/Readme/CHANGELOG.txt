@@ -1,9 +1,37 @@
+### v1.7.1
+* Added additional controllers supported by 360Controller 0.16.8 on Mac.
+* Added NVIDIA Shield remote Android profile.
+* Fixed PlayStation 4 profile for console.
+* BREAKING CHANGE: The singleton enforcement for InControlManager and TouchManager components was far too aggressive. It will now no longer destroy duplicate components automatically and, if redundant instances are detected in play mode, a warning will be shown in the console and the components will be disabled.
+
+### v1.7.0
+* Added additional controllers supported by 360Controller 0.16.6 on Mac.
+* Added Xiaomi Remote profile for Android TV.
+* Added `InputManager.ActiveDevices` that contains all devices active during the last update tick.
+* Added `BindingListenOptions.OnBindingEnded`, called after listening for bindings is ended (for any reason).
+* Added iCade support for tvOS.
+* Added UWP support using the `Windows.Gaming.Input` framework.
+* Added `TwoAxisInputControl.DeadZoneFunc` which may be set to `DeadZone.Circular` (default), `DeadZone.Separate` or a custom deadzone function.
+* Added more performance optimizations.
+* Fixed `XboxOneInputDevice` to properly clamp vibration values.
+* Removed beta label from Native Input module. It's time.
+* BREAKING CHANGE: Removed 32-bit Native Input plugin on macOS.
+* BREAKING CHANGE: Removed custom profiles functionality deprecated in v1.5.12.
+* BREAKING CHANGE: `InputDevice.LastChangeTick` has been replaced with `InputDevice.LastInputTick`
+* BREAKING CHANGE: `InputDevice.LastChangedAfter()` has been replaced with `InputDevice.LastInputAfter()`
+* BREAKING CHANGE: Whether a device is considered active is now determined by whether any control gives nonzero input rather than whether the control value changed. Controls or devices with their `Passive` property set will never be considered active. This makes device activation more intuitive and properly handles multiple devices being active simultaneously, enabling `InputManager.ActiveDevices` to exist. `InputManager.ActiveDevice` can now also be more "sticky" and will only be changed if the device is inactive, which helps mitigate certain broken situations where a mirrored virtual device exists in the OS.
+
+### v1.6.17
+* Added another device to Xbox 360 Windows profile.
+* Fixed Unity 2017.2 compatibility issues.
+* Fixed various problems with `InControlInputModule` in Unity 2017.x
+
 ### v1.6.16
 * Added prevent sleep / screensaver option to native module.
 * Added `InputDevice.Passive` which causes a device to never be considered active (defaults to `false`).
 * Fixed a few profiles that were missing `DeviceClass` and/or `DeviceStyle` settings.
 * Fixed touch swipe control's "one swipe per touch" setting to work with analog targets.
-* Fixed PlayerAction.RemoveBinding to be more robust and never throw an exception.
+* Fixed `PlayerAction.RemoveBinding` to be more robust and never throw an exception.
 * Fixed issue where native module caused certain keyboards (especially Logitech G110) to lock up.
 * Fixed crash in native module that occurred when connecting/disconnecting devices (thanks Matthew!).
 

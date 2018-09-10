@@ -19,6 +19,7 @@ namespace TouchExample
 		{
 			// Use last device which provided input.
 			var inputDevice = InputManager.ActiveDevice;
+			Debug.Log( inputDevice.Name );
 
 			// Disable and hide touch controls if we use a controller.
 			// If "Enable Controls On Touch" is ticked in Touch Manager inspector,
@@ -37,7 +38,7 @@ namespace TouchExample
 		}
 
 
-		Color GetColorFromActionButtons( InputDevice inputDevice )
+		static Color GetColorFromActionButtons( InputDevice inputDevice )
 		{
 			if (inputDevice.Action1)
 			{
@@ -77,4 +78,3 @@ namespace TouchExample
 		}
 	}
 }
-

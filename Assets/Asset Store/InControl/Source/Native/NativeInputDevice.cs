@@ -114,7 +114,7 @@ namespace InControl
 			if (Native.GetDeviceState( Handle, out data ))
 			{
 				Marshal.Copy( data, buttons, 0, buttons.Length );
-				data = new IntPtr( data.ToInt64() + (buttons.Length * sizeof( Int16 )) );
+				data = new IntPtr( data.ToInt64() + (buttons.Length * sizeof(Int16)) );
 				Marshal.Copy( data, analogs, 0, analogs.Length );
 			}
 
@@ -165,6 +165,7 @@ namespace InControl
 			{
 				return buttons[index] > -Int16.MaxValue;
 			}
+
 			return false;
 		}
 
@@ -175,6 +176,7 @@ namespace InControl
 			{
 				return analogs[index] / (float) Int16.MaxValue;
 			}
+
 			return 0.0f;
 		}
 
@@ -235,37 +237,25 @@ namespace InControl
 
 		public override bool IsSupportedOnThisPlatform
 		{
-			get
-			{
-				return profile == null || profile.IsSupportedOnThisPlatform;
-			}
+			get { return profile == null || profile.IsSupportedOnThisPlatform; }
 		}
 
 
 		public override bool IsKnown
 		{
-			get
-			{
-				return profile != null;
-			}
+			get { return profile != null; }
 		}
 
 
 		internal override int NumUnknownButtons
 		{
-			get
-			{
-				return numUnknownButtons;
-			}
+			get { return numUnknownButtons; }
 		}
 
 
 		internal override int NumUnknownAnalogs
 		{
-			get
-			{
-				return numUnknownAnalogs;
-			}
+			get { return numUnknownAnalogs; }
 		}
 	}
 }

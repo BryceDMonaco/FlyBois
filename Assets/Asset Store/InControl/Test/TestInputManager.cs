@@ -17,13 +17,16 @@ namespace InControl
 	{
 		public Font font;
 
-		GUIStyle style = new GUIStyle();
-		List<LogMessage> logMessages = new List<LogMessage>();
+		readonly GUIStyle style = new GUIStyle();
+		readonly List<LogMessage> logMessages = new List<LogMessage>();
 		bool isPaused;
 
 
 		void OnEnable()
 		{
+			Application.targetFrameRate = -1;
+			QualitySettings.vSyncCount = 0;
+
 			isPaused = false;
 			Time.timeScale = 1.0f;
 
@@ -112,7 +115,7 @@ namespace InControl
 
 			//Debug.Log( "IntPtr.Size = " + IntPtr.Size );
 
-#if UNITY_IOS
+#if UNITY_IOS || UNITY_TVOS
 			ICadeDeviceManager.Active = true;
 #endif
 		}
@@ -155,7 +158,7 @@ namespace InControl
 			var w = Mathf.FloorToInt( Screen.width / Mathf.Max( 1, InputManager.Devices.Count ) );
 			var x = 10;
 			var y = 10;
-			var lineHeight = 15;
+			const int lineHeight = 15;
 
 			GUI.skin.font = font;
 			SetColor( Color.white );
@@ -177,8 +180,13 @@ namespace InControl
 
 			foreach (var inputDevice in InputManager.Devices)
 			{
-				var deviceIsActive = InputManager.ActiveDevice == inputDevice;
-				var color = deviceIsActive ? Color.yellow : Color.white;
+				var color = inputDevice.IsActive ? new Color(0.9f, 0.7f, 0.2f) : Color.white;
+
+				var isActiveDevice = InputManager.ActiveDevice == inputDevice;
+				if (isActiveDevice)
+				{
+					color = new Color(1.0f, 0.9f, 0.0f);
+				}
 
 				y = 35;
 
@@ -211,13 +219,16 @@ namespace InControl
 				GUI.Label( new Rect( x, y, x + w, y + 10 ), "SortOrder: " + inputDevice.SortOrder, style );
 				y += lineHeight;
 
-				GUI.Label( new Rect( x, y, x + w, y + 10 ), "LastChangeTick: " + inputDevice.LastChangeTick, style );
+//				GUI.Label( new Rect( x, y, x + w, y + 10 ), "LastChangeTick: " + inputDevice.LastChangeTick, style );
+//				y += lineHeight;
+
+				GUI.Label( new Rect( x, y, x + w, y + 10 ), "LastInputTick: " + inputDevice.LastInputTick, style );
 				y += lineHeight;
 
 				var nativeDevice = inputDevice as NativeInputDevice;
 				if (nativeDevice != null)
 				{
-					var nativeDeviceInfo = String.Format( "VID = 0x{0:x}, PID = 0x{1:x}, VER = 0x{2:x}", nativeDevice.Info.vendorID, nativeDevice.Info.productID, nativeDevice.Info.versionNumber );
+					var nativeDeviceInfo = string.Format( "VID = 0x{0:x}, PID = 0x{1:x}, VER = 0x{2:x}", nativeDevice.Info.vendorID, nativeDevice.Info.productID, nativeDevice.Info.versionNumber );
 					GUI.Label( new Rect( x, y, x + w, y + 10 ), nativeDeviceInfo, style );
 					y += lineHeight;
 				}
@@ -248,7 +259,7 @@ namespace InControl
 
 				y += lineHeight;
 
-				color = deviceIsActive ? new Color( 1.0f, 0.7f, 0.2f ) : Color.white;
+				color = isActiveDevice ? new Color(0.85f, 0.65f, 0.12f) : Color.white;
 				if (inputDevice.IsKnown)
 				{
 					var control = inputDevice.Command;

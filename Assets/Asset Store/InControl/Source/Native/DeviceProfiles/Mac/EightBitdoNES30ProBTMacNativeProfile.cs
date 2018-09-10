@@ -1,8 +1,5 @@
-namespace InControl
+namespace InControl.NativeProfile
 {
-	using System;
-
-
 	// @cond nodoc
 	[AutoDiscover]
 	public class EightBitdoNES30ProBTMacNativeProfile : NativeInputDeviceProfile

@@ -1,4 +1,4 @@
-namespace InControl
+namespace InControl.NativeProfile
 {
 	// @cond nodoc
 	[AutoDiscover]

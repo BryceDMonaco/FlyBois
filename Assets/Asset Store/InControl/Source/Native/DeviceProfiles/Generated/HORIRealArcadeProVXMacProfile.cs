@@ -4,12 +4,12 @@ namespace InControl.NativeProfile
 
 
 	// @cond nodoc
-	public class HORIRealArcadeProVXMacProfile : Xbox360DriverMacProfile
+	public class HoriRealArcadeProVXMacProfile : Xbox360DriverMacProfile
 	{
-		public HORIRealArcadeProVXMacProfile()
+		public HoriRealArcadeProVXMacProfile()
 		{
-			Name = "HORI Real Arcade Pro VX";
-			Meta = "HORI Real Arcade Pro VX on Mac";
+			Name = "Hori Real Arcade Pro VX";
+			Meta = "Hori Real Arcade Pro VX on Mac";
 
 			Matchers = new[] {
 				new NativeInputDeviceMatcher {

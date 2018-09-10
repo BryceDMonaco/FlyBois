@@ -35,8 +35,8 @@ namespace InControl
 			AddSystemDeviceProfiles();
 
 			var options = new NativeInputOptions();
-			options.enableXInput = InputManager.NativeInputEnableXInput;
-			options.preventSleep = InputManager.NativeInputPreventSleep;
+			options.enableXInput = InputManager.NativeInputEnableXInput ? 1 : 0;
+			options.preventSleep = InputManager.NativeInputPreventSleep ? 1 : 0;
 
 			if (InputManager.NativeInputUpdateRate > 0)
 			{
@@ -63,6 +63,7 @@ namespace InControl
 			{
 				return 0;
 			}
+
 			--x;
 			x |= x >> 1;
 			x |= x >> 2;
@@ -172,6 +173,7 @@ namespace InControl
 					return device;
 				}
 			}
+
 			return null;
 		}
 
@@ -197,8 +199,8 @@ namespace InControl
 			{
 				var device = detachedDevices[i];
 				if (device.Info.HasSameVendorID( deviceInfo ) &&
-					device.Info.HasSameProductID( deviceInfo ) &&
-					device.Info.HasSameSerialNumber( deviceInfo ))
+				    device.Info.HasSameProductID( deviceInfo ) &&
+				    device.Info.HasSameSerialNumber( deviceInfo ))
 				{
 					return device;
 				}
@@ -208,8 +210,8 @@ namespace InControl
 			{
 				var device = detachedDevices[i];
 				if (device.Info.HasSameVendorID( deviceInfo ) &&
-					device.Info.HasSameProductID( deviceInfo ) &&
-					device.Info.HasSameLocation( deviceInfo ))
+				    device.Info.HasSameProductID( deviceInfo ) &&
+				    device.Info.HasSameLocation( deviceInfo ))
 				{
 					return device;
 				}
@@ -219,8 +221,8 @@ namespace InControl
 			{
 				var device = detachedDevices[i];
 				if (device.Info.HasSameVendorID( deviceInfo ) &&
-					device.Info.HasSameProductID( deviceInfo ) &&
-					device.Info.HasSameVersionNumber( deviceInfo ))
+				    device.Info.HasSameProductID( deviceInfo ) &&
+				    device.Info.HasSameVersionNumber( deviceInfo ))
 				{
 					return device;
 				}
@@ -261,9 +263,9 @@ namespace InControl
 		public static bool CheckPlatformSupport( ICollection<string> errors )
 		{
 			if (Application.platform != RuntimePlatform.OSXPlayer &&
-				Application.platform != RuntimePlatform.OSXEditor &&
-				Application.platform != RuntimePlatform.WindowsPlayer &&
-				Application.platform != RuntimePlatform.WindowsEditor)
+			    Application.platform != RuntimePlatform.OSXEditor &&
+			    Application.platform != RuntimePlatform.WindowsPlayer &&
+			    Application.platform != RuntimePlatform.WindowsEditor)
 			{
 				// Don't add errors here. Just fail silently on unsupported platforms.
 				return false;
@@ -292,6 +294,7 @@ namespace InControl
 				{
 					errors.Add( e.Message + Utility.PluginFileExtension() + " could not be found or is missing a dependency." );
 				}
+
 				return false;
 			}
 
@@ -307,10 +310,12 @@ namespace InControl
 				InputManager.AddDeviceManager<NativeInputDeviceManager>();
 				return true;
 			}
+
 			foreach (var error in errors)
 			{
 				Debug.LogError( "Error enabling NativeInputDeviceManager: " + error );
 			}
+
 			return false;
 		}
 	}

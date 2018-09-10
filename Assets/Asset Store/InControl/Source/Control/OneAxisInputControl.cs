@@ -13,6 +13,8 @@ namespace InControl
 		float upperDeadZone = 1.0f;
 		float stateThreshold = 0.0f;
 
+		protected bool isNullControl = false;
+
 		public float FirstRepeatDelay = 0.8f;
 		public float RepeatDelay = 0.1f;
 
@@ -36,7 +38,7 @@ namespace InControl
 
 		void PrepareForUpdate( ulong updateTick )
 		{
-			if (IsNull)
+			if (isNullControl)
 			{
 				return;
 			}
@@ -63,7 +65,7 @@ namespace InControl
 
 		public bool UpdateWithState( bool state, ulong updateTick, float deltaTime )
 		{
-			if (IsNull)
+			if (isNullControl)
 			{
 				return false;
 			}
@@ -78,7 +80,7 @@ namespace InControl
 
 		public bool UpdateWithValue( float value, ulong updateTick, float deltaTime )
 		{
-			if (IsNull)
+			if (isNullControl)
 			{
 				return false;
 			}
@@ -106,7 +108,7 @@ namespace InControl
 
 		internal bool UpdateWithRawValue( float value, ulong updateTick, float deltaTime )
 		{
-			if (IsNull)
+			if (isNullControl)
 			{
 				return false;
 			}
@@ -128,7 +130,7 @@ namespace InControl
 
 		internal void SetValue( float value, ulong updateTick )
 		{
-			if (IsNull)
+			if (isNullControl)
 			{
 				return;
 			}
@@ -158,7 +160,7 @@ namespace InControl
 
 		public void Commit()
 		{
-			if (IsNull)
+			if (isNullControl)
 			{
 				return;
 			}
@@ -187,18 +189,17 @@ namespace InControl
 			{
 				nextRepeatTime = 0.0f;
 			}
-			else
-			if (thisPressed) // if is pressed...
+			else if (thisPressed) // if is pressed...
 			{
+				var realtimeSinceStartup = Time.realtimeSinceStartup;
 				if (lastPressed != thisPressed) // if has changed...
 				{
-					nextRepeatTime = Time.realtimeSinceStartup + FirstRepeatDelay;
+					nextRepeatTime = realtimeSinceStartup + FirstRepeatDelay;
 				}
-				else
-				if (Time.realtimeSinceStartup >= nextRepeatTime)
+				else if (realtimeSinceStartup >= nextRepeatTime)
 				{
 					wasRepeated = true;
-					nextRepeatTime = Time.realtimeSinceStartup + RepeatDelay;
+					nextRepeatTime = realtimeSinceStartup + RepeatDelay;
 				}
 			}
 
@@ -235,165 +236,115 @@ namespace InControl
 
 		public bool State
 		{
-			get
-			{
-				return Enabled && thisState.State;
-			}
+			get { return Enabled && thisState.State; }
 		}
 
 
 		public bool LastState
 		{
-			get
-			{
-				return Enabled && lastState.State;
-			}
+			get { return Enabled && lastState.State; }
 		}
 
 
 		public float Value
 		{
-			get
-			{
-				return Enabled ? thisState.Value : 0.0f;
-			}
+			get { return Enabled ? thisState.Value : 0.0f; }
 		}
 
 
 		public float LastValue
 		{
-			get
-			{
-				return Enabled ? lastState.Value : 0.0f;
-			}
+			get { return Enabled ? lastState.Value : 0.0f; }
 		}
 
 
 		public float RawValue
 		{
-			get
-			{
-				return Enabled ? thisState.RawValue : 0.0f;
-			}
+			get { return Enabled ? thisState.RawValue : 0.0f; }
 		}
 
 
 		internal float NextRawValue
 		{
-			get
-			{
-				return Enabled ? nextState.RawValue : 0.0f;
-			}
+			get { return Enabled ? nextState.RawValue : 0.0f; }
+		}
+
+
+		/// <summary>
+		/// This differs from IsPressed in that it just means the control has a nonzero value
+		/// whereas IsPressed means the absolute value is over StateThreshold.
+		/// </summary>
+		internal bool HasInput
+		{
+			get { return Enabled && Utility.IsNotZero( thisState.Value ); }
 		}
 
 
 		public bool HasChanged
 		{
-			get
-			{
-				return Enabled && thisState != lastState;
-			}
+			get { return Enabled && thisState != lastState; }
 		}
 
 
 		public bool IsPressed
 		{
-			get
-			{
-				return Enabled && thisState.State;
-			}
+			get { return Enabled && thisState.State; }
 		}
 
 
 		public bool WasPressed
 		{
-			get
-			{
-				return Enabled && thisState && !lastState;
-			}
+			get { return Enabled && thisState && !lastState; }
 		}
 
 
 		public bool WasReleased
 		{
-			get
-			{
-				return Enabled && !thisState && lastState;
-			}
+			get { return Enabled && !thisState && lastState; }
 		}
 
 
 		public bool WasRepeated
 		{
-			get
-			{
-				return Enabled && wasRepeated;
-			}
+			get { return Enabled && wasRepeated; }
 		}
 
 
 		public float Sensitivity
 		{
-			get
-			{
-				return sensitivity;
-			}
+			get { return sensitivity; }
 
-			set
-			{
-				sensitivity = Mathf.Clamp01( value );
-			}
+			set { sensitivity = Mathf.Clamp01( value ); }
 		}
 
 
 		public float LowerDeadZone
 		{
-			get
-			{
-				return lowerDeadZone;
-			}
+			get { return lowerDeadZone; }
 
-			set
-			{
-				lowerDeadZone = Mathf.Clamp01( value );
-			}
+			set { lowerDeadZone = Mathf.Clamp01( value ); }
 		}
 
 
 		public float UpperDeadZone
 		{
-			get
-			{
-				return upperDeadZone;
-			}
+			get { return upperDeadZone; }
 
-			set
-			{
-				upperDeadZone = Mathf.Clamp01( value );
-			}
+			set { upperDeadZone = Mathf.Clamp01( value ); }
 		}
 
 
 		public float StateThreshold
 		{
-			get
-			{
-				return stateThreshold;
-			}
+			get { return stateThreshold; }
 
-			set
-			{
-				stateThreshold = Mathf.Clamp01( value );
-			}
+			set { stateThreshold = Mathf.Clamp01( value ); }
 		}
 
 
-		public bool IsNull
+		public bool IsNullControl
 		{
-			get
-			{
-				return ReferenceEquals( this, InputControl.Null );
-			}
+			get { return isNullControl; }
 		}
 
 

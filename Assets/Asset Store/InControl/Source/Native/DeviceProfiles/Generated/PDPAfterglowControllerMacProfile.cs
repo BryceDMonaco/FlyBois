@@ -13,10 +13,6 @@ namespace InControl.NativeProfile
 
 			Matchers = new[] {
 				new NativeInputDeviceMatcher {
-					VendorID = 0x0e6f,
-					ProductID = 0x0413,
-				},
-				new NativeInputDeviceMatcher {
 					VendorID = 0x24c6,
 					ProductID = 0xfafc,
 				},
@@ -34,15 +30,23 @@ namespace InControl.NativeProfile
 				},
 				new NativeInputDeviceMatcher {
 					VendorID = 0x1bad,
+					ProductID = 0x0300,
+				},
+				new NativeInputDeviceMatcher {
+					VendorID = 0x0e6f,
+					ProductID = 0x0413,
+				},
+				new NativeInputDeviceMatcher {
+					VendorID = 0x1bad,
+					ProductID = 0xf900,
+				},
+				new NativeInputDeviceMatcher {
+					VendorID = 0x0e6f,
 					ProductID = 0xf900,
 				},
 				new NativeInputDeviceMatcher {
 					VendorID = 0x0e6f,
 					ProductID = 0x0113,
-				},
-				new NativeInputDeviceMatcher {
-					VendorID = 0x0e6f,
-					ProductID = 0xf900,
 				},
 				new NativeInputDeviceMatcher {
 					VendorID = 0x0e6f,

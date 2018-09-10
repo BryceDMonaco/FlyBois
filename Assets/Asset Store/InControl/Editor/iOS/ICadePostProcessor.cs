@@ -10,7 +10,7 @@ namespace InControl
 
 	public class ICadePostProcessor
 	{
-		static readonly string[] sourceFiles = new[] {
+		static readonly string[] sourceFiles = {
 			"ICadeManager.h",
 			"ICadeManager.m",
 			"ICadeReaderView.h",
@@ -22,13 +22,13 @@ namespace InControl
 		public static void OnPostProcessBuild( BuildTarget buildTarget, string buildPath )
 		{
 #if UNITY_5 || UNITY_5_6_OR_NEWER
-			if (buildTarget == BuildTarget.iOS)
+			if (buildTarget == BuildTarget.iOS || buildTarget == BuildTarget.tvOS)
 #else
 			if (buildTarget == BuildTarget.iPhone)
 #endif
 			{
 				var projPath = PBXProject.GetPBXProjectPath( buildPath );
-				PBXProject proj = new PBXProject();
+				var proj = new PBXProject();
 				proj.ReadFromString( File.ReadAllText( projPath ) );
 				var targetGuid = proj.TargetGuidByName( "Unity-iPhone" );
 

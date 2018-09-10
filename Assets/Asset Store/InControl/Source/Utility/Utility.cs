@@ -142,66 +142,19 @@ namespace InControl
 
 		public static float ApplyDeadZone( float value, float lowerDeadZone, float upperDeadZone )
 		{
+			var deltaDeadZone = upperDeadZone - lowerDeadZone;
 			if (value < 0.0f)
 			{
-				if (value > -lowerDeadZone)
-				{
-					return 0.0f;
-				}
-
-				if (value < -upperDeadZone)
-				{
-					return -1.0f;
-				}
-
-				return (value + lowerDeadZone) / (upperDeadZone - lowerDeadZone);
+				if (value > -lowerDeadZone) return 0.0f;
+				if (value < -upperDeadZone) return -1.0f;
+				return (value + lowerDeadZone) / deltaDeadZone;
 			}
 			else
 			{
-				if (value < lowerDeadZone)
-				{
-					return 0.0f;
-				}
-
-				if (value > upperDeadZone)
-				{
-					return 1.0f;
-				}
-
-				return (value - lowerDeadZone) / (upperDeadZone - lowerDeadZone);
+				if (value < lowerDeadZone) return 0.0f;
+				if (value > upperDeadZone) return 1.0f;
+				return (value - lowerDeadZone) / deltaDeadZone;
 			}
-		}
-
-
-		// This is useful for DPad calculations where the control will snap to 8 directions
-		// as some DPads on analogs provide slight noise preventing accurate calculations.
-		public static Vector2 ApplySeparateDeadZone( float x, float y, float lowerDeadZone, float upperDeadZone )
-		{
-			return new Vector2(
-				ApplyDeadZone( x, lowerDeadZone, upperDeadZone ),
-				ApplyDeadZone( y, lowerDeadZone, upperDeadZone )
-			).normalized;
-		}
-
-
-		public static Vector2 ApplyCircularDeadZone( Vector2 v, float lowerDeadZone, float upperDeadZone )
-		{
-			var magnitude = v.magnitude;
-			if (magnitude < lowerDeadZone)
-			{
-				return Vector2.zero;
-			}
-			if (magnitude > upperDeadZone)
-			{
-				return v.normalized;
-			}
-			return v.normalized * ((magnitude - lowerDeadZone) / (upperDeadZone - lowerDeadZone));
-		}
-
-
-		public static Vector2 ApplyCircularDeadZone( float x, float y, float lowerDeadZone, float upperDeadZone )
-		{
-			return ApplyCircularDeadZone( new Vector2( x, y ), lowerDeadZone, upperDeadZone );
 		}
 
 

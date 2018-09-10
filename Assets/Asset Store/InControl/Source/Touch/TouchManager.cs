@@ -8,7 +8,7 @@ namespace InControl
 
 
 	[ExecuteInEditMode]
-	public class TouchManager : SingletonMonoBehavior<TouchManager, InControlManager>
+	public class TouchManager : SingletonMonoBehavior<TouchManager>
 	{
 		public enum GizmoShowOption
 		{
@@ -19,8 +19,8 @@ namespace InControl
 		}
 
 		[Space( 10 )]
-
 		public Camera touchCamera;
+
 		public GizmoShowOption controlsShowGizmos = GizmoShowOption.Always;
 
 		[HideInInspector]
@@ -74,9 +74,8 @@ namespace InControl
 				return;
 			}
 
-			if (EnforceSingletonComponent() == false)
+			if (EnforceSingleton)
 			{
-				Debug.LogWarning( "There is already a Touch Manager component on this game object." );
 				return;
 			}
 
@@ -426,21 +425,21 @@ namespace InControl
 				var touch = activeTouches[i];
 				switch (touch.phase)
 				{
-				case TouchPhase.Began:
-					SendTouchBegan( touch );
-					break;
+					case TouchPhase.Began:
+						SendTouchBegan( touch );
+						break;
 
-				case TouchPhase.Moved:
-					SendTouchMoved( touch );
-					break;
+					case TouchPhase.Moved:
+						SendTouchMoved( touch );
+						break;
 
-				case TouchPhase.Ended:
-					SendTouchEnded( touch );
-					break;
+					case TouchPhase.Ended:
+						SendTouchEnded( touch );
+						break;
 
-				case TouchPhase.Canceled:
-					SendTouchEnded( touch );
-					break;
+					case TouchPhase.Canceled:
+						SendTouchEnded( touch );
+						break;
 				}
 			}
 		}
@@ -518,10 +517,7 @@ namespace InControl
 
 		public bool controlsEnabled
 		{
-			get
-			{
-				return _controlsEnabled;
-			}
+			get { return _controlsEnabled; }
 
 			set
 			{
@@ -543,19 +539,13 @@ namespace InControl
 
 		public static ReadOnlyCollection<Touch> Touches
 		{
-			get
-			{
-				return Instance.readOnlyActiveTouches;
-			}
+			get { return Instance.readOnlyActiveTouches; }
 		}
 
 
 		public static int TouchCount
 		{
-			get
-			{
-				return Instance.activeTouches.Count;
-			}
+			get { return Instance.activeTouches.Count; }
 		}
 
 
@@ -625,105 +615,69 @@ namespace InControl
 
 		public static Camera Camera
 		{
-			get
-			{
-				return Instance.touchCamera;
-			}
+			get { return Instance.touchCamera; }
 		}
 
 
 		public static InputDevice Device
 		{
-			get
-			{
-				return Instance.device;
-			}
+			get { return Instance.device; }
 		}
 
 
 		public static Vector3 ViewSize
 		{
-			get
-			{
-				return Instance.viewSize;
-			}
+			get { return Instance.viewSize; }
 		}
 
 
 		public static float PercentToWorld
 		{
-			get
-			{
-				return Instance.percentToWorld;
-			}
+			get { return Instance.percentToWorld; }
 		}
 
 
 		public static float HalfPercentToWorld
 		{
-			get
-			{
-				return Instance.halfPercentToWorld;
-			}
+			get { return Instance.halfPercentToWorld; }
 		}
 
 
 		public static float PixelToWorld
 		{
-			get
-			{
-				return Instance.pixelToWorld;
-			}
+			get { return Instance.pixelToWorld; }
 		}
 
 
 		public static float HalfPixelToWorld
 		{
-			get
-			{
-				return Instance.halfPixelToWorld;
-			}
+			get { return Instance.halfPixelToWorld; }
 		}
 
 
 		public static Vector2 ScreenSize
 		{
-			get
-			{
-				return Instance.screenSize;
-			}
+			get { return Instance.screenSize; }
 		}
 
 
 		public static Vector2 HalfScreenSize
 		{
-			get
-			{
-				return Instance.halfScreenSize;
-			}
+			get { return Instance.halfScreenSize; }
 		}
 
 
 		public static GizmoShowOption ControlsShowGizmos
 		{
-			get
-			{
-				return Instance.controlsShowGizmos;
-			}
+			get { return Instance.controlsShowGizmos; }
 		}
 
 
 		public static bool ControlsEnabled
 		{
-			get
-			{
-				return Instance.controlsEnabled;
-			}
+			get { return Instance.controlsEnabled; }
 
-			set
-			{
-				Instance.controlsEnabled = value;
-			}
+			set { Instance.controlsEnabled = value; }
 		}
 
 		#endregion

@@ -8,8 +8,7 @@ namespace InControl
 	public struct NativeInputOptions
 	{
 		public UInt16 updateRate;
-		public Boolean enableXInput;
-		public Boolean preventSleep;
+		public Int32 enableXInput;
+		public Int32 preventSleep;
 	}
 }
-

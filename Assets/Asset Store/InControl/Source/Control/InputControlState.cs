@@ -1,9 +1,7 @@
-
-#pragma warning disable 0660, 0661
-
-
 namespace InControl
 {
+#pragma warning disable 0660, 0661
+
 	public struct InputControlState
 	{
 		public bool State;
@@ -55,16 +53,13 @@ namespace InControl
 
 		public static bool operator ==( InputControlState a, InputControlState b )
 		{
-			if (a.State != b.State) return false;
-			return Utility.Approximately( a.Value, b.Value );
+			return a.State == b.State && Utility.Approximately( a.Value, b.Value );
 		}
 
 
 		public static bool operator !=( InputControlState a, InputControlState b )
 		{
-			if (a.State != b.State) return true;
-			return !Utility.Approximately( a.Value, b.Value );
+			return a.State != b.State || !Utility.Approximately( a.Value, b.Value );
 		}
 	}
 }
-

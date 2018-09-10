@@ -13,19 +13,19 @@ namespace InControl
 
 	public class UnityInputDeviceProfile : UnityInputDeviceProfileBase
 	{
-		[SerializeField]
+		// [SerializeField]
 		protected string[] JoystickNames;
 
-		[SerializeField]
+		// [SerializeField]
 		protected string[] JoystickRegex;
 
-		[SerializeField]
+		// [SerializeField]
 		protected string LastResortRegex;
 
-		[SerializeField]
+		// [SerializeField]
 		public VersionInfo MinUnityVersion { get; protected set; }
 
-		[SerializeField]
+		// [SerializeField]
 		public VersionInfo MaxUnityVersion { get; protected set; }
 
 
@@ -44,8 +44,8 @@ namespace InControl
 			get
 			{
 				return (LastResortRegex != null) ||
-				(JoystickNames != null && JoystickNames.Length > 0) ||
-				(JoystickRegex != null && JoystickRegex.Length > 0);
+				       (JoystickNames != null && JoystickNames.Length > 0) ||
+				       (JoystickRegex != null && JoystickRegex.Length > 0);
 			}
 		}
 
@@ -104,10 +104,7 @@ namespace InControl
 
 		public override bool IsSupportedOnThisPlatform
 		{
-			get
-			{
-				return IsSupportedOnThisVersionOfUnity && base.IsSupportedOnThisPlatform;
-			}
+			get { return IsSupportedOnThisVersionOfUnity && base.IsSupportedOnThisPlatform; }
 		}
 
 
@@ -230,6 +227,7 @@ namespace InControl
 		protected static InputControlSource EscapeKey = new UnityKeyCodeSource( KeyCode.Escape );
 
 		#endregion
+
 
 		#region InputDeviceMapping helpers
 

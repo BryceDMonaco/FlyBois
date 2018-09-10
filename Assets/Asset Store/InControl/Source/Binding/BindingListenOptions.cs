@@ -41,16 +41,16 @@
 		public bool IncludeModifiersAsFirstClassKeys = false;
 
 		/// <summary>
-		/// The maximum number of bindings allowed for the action. 
-		/// If a new binding is detected and would cause this number to be exceeded, 
+		/// The maximum number of bindings allowed for the action.
+		/// If a new binding is detected and would cause this number to be exceeded,
 		/// enough bindings are removed to make room before adding the new binding.
 		/// When zero (default), no limit is applied.
 		/// </summary>
 		public uint MaxAllowedBindings = 0;
 
 		/// <summary>
-		/// The maximum number of bindings of a given type allowed for the action. 
-		/// If a new binding is detected and would cause this number to be exceeded, 
+		/// The maximum number of bindings of a given type allowed for the action.
+		/// If a new binding is detected and would cause this number to be exceeded,
 		/// enough bindings are removed to make room before adding the new binding.
 		/// When zero (default), no limit is applied.
 		/// When nonzero, this setting overrides MaxAllowedBindings.
@@ -69,7 +69,7 @@
 		public bool UnsetDuplicateBindingsOnSet = false;
 
 		/// <summary>
-		/// If an existing duplicate binding already exists on the same action, 
+		/// If an existing duplicate binding already exists on the same action,
 		/// reject the binding instead of accepting it doing nothing.
 		/// </summary>
 		public bool RejectRedundantBindings = false;
@@ -95,12 +95,17 @@
 		public Action<PlayerAction, BindingSource> OnBindingAdded = null;
 
 		/// <summary>
-		/// This action is called after a binding is found, but rejected along with 
+		/// This action is called after a binding is found, but rejected along with
 		/// the reason (BindingSourceRejectionType) why it was rejected.
 		/// If set to <code>null</code> (default), it will not be called.
 		/// </summary>
 		public Action<PlayerAction, BindingSource, BindingSourceRejectionType> OnBindingRejected = null;
 
+		/// <summary>
+		/// This action is called after listening for bindings is ended (for any reason).
+		/// If set to <code>null</code> (default), it will not be called.
+		/// </summary>
+		public Action<PlayerAction> OnBindingEnded = null;
 
 
 		public bool CallOnBindingFound( PlayerAction playerAction, BindingSource bindingSource )
@@ -131,6 +136,14 @@
 				OnBindingRejected( playerAction, bindingSource, bindingSourceRejectionType );
 			}
 		}
+
+
+		public void CallOnBindingEnded( PlayerAction playerAction )
+		{
+			if (OnBindingEnded != null)
+			{
+				OnBindingEnded( playerAction );
+			}
+		}
 	}
 }
-

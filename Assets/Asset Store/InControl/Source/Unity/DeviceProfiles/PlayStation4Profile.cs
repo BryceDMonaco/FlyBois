@@ -15,7 +15,8 @@ namespace InControl
 			DeviceStyle = InputDeviceStyle.PlayStation4;
 
 			IncludePlatforms = new[] {
-				"PS4"
+				"PS4",
+				"ORBIS"
 			};
 
 			JoystickRegex = new[] {
@@ -179,3 +180,4 @@ namespace InControl
 	}
 	// @endcond
 }
+

@@ -1,4 +1,4 @@
-#if UNITY_IOS || UNITY_EDITOR
+#if UNITY_IOS || UNITY_TVOS || UNITY_EDITOR
 namespace InControl
 {
 	using System;

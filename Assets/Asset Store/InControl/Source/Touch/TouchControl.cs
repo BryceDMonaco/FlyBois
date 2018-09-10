@@ -186,7 +186,7 @@ namespace InControl
 				return;
 			}
 
-			var v = Utility.ApplyCircularDeadZone( value, lowerDeadZone, upperDeadZone );
+			var v = DeadZone.Circular( value.x, value.y, lowerDeadZone, upperDeadZone );
 
 			if (target == AnalogTarget.LeftStick || target == AnalogTarget.Both)
 			{

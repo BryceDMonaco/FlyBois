@@ -1,5 +1,6 @@
 namespace InControl
 {
+	using System;
 	using UnityEngine;
 
 
@@ -16,6 +17,8 @@ namespace InControl
 		public OneAxisInputControl Down { get; protected set; }
 
 		public ulong UpdateTick { get; protected set; }
+
+		public DeadZoneFunc DeadZoneFunc = DeadZone.Circular;
 
 		float sensitivity = 1.0f;
 		float lowerDeadZone = 0.0f;
@@ -72,7 +75,7 @@ namespace InControl
 			lastState = thisState;
 			lastValue = thisValue;
 
-			thisValue = Raw ? new Vector2( x, y ) : Utility.ApplyCircularDeadZone( x, y, LowerDeadZone, UpperDeadZone );
+			thisValue = Raw ? new Vector2( x, y ) : DeadZoneFunc( x, y, LowerDeadZone, UpperDeadZone );
 
 			X = thisValue.x;
 			Y = thisValue.y;
@@ -116,10 +119,7 @@ namespace InControl
 
 		public float Sensitivity
 		{
-			get
-			{
-				return sensitivity;
-			}
+			get { return sensitivity; }
 
 			set
 			{
@@ -134,10 +134,7 @@ namespace InControl
 
 		public float StateThreshold
 		{
-			get
-			{
-				return stateThreshold;
-			}
+			get { return stateThreshold; }
 
 			set
 			{
@@ -152,10 +149,7 @@ namespace InControl
 
 		public float LowerDeadZone
 		{
-			get
-			{
-				return lowerDeadZone;
-			}
+			get { return lowerDeadZone; }
 
 			set
 			{
@@ -170,10 +164,7 @@ namespace InControl
 
 		public float UpperDeadZone
 		{
-			get
-			{
-				return upperDeadZone;
-			}
+			get { return upperDeadZone; }
 
 			set
 			{
@@ -216,11 +207,7 @@ namespace InControl
 		}
 
 
-		public bool HasChanged
-		{
-			get;
-			protected set;
-		}
+		public bool HasChanged { get; protected set; }
 
 
 		public bool IsPressed
@@ -243,10 +230,7 @@ namespace InControl
 
 		public float Angle
 		{
-			get
-			{
-				return Utility.VectorToAngle( thisValue );
-			}
+			get { return Utility.VectorToAngle( thisValue ); }
 		}
 
 
@@ -268,4 +252,3 @@ namespace InControl
 		}
 	}
 }
-
