@@ -365,7 +365,7 @@ MonoBehaviour:
     m_PressedColor: {r: 0.49056602, g: 0.49056602, b: 0.49056602, a: 1}
     m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
     m_ColorMultiplier: 1
-    m_FadeDuration: 0.1
+    m_FadeDuration: 0
   m_SpriteState:
     m_HighlightedSprite: {fileID: 0}
     m_PressedSprite: {fileID: 0}
@@ -516,6 +516,7 @@ GameObject:
   m_Component:
   - component: {fileID: 819397335}
   - component: {fileID: 819397334}
+  - component: {fileID: 819397336}
   m_Layer: 0
   m_Name: _ScreenManager
   m_TagString: Untagged
@@ -548,6 +549,19 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &819397336
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 819397333}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 404bd5d661ab66849a79bf5b39378673, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  singleJoystickBackgroundImage: {fileID: 1919956327}
+  singleJoyStickAlwaysVisible: 1
 --- !u!1001 &882278140
 Prefab:
   m_ObjectHideFlags: 0
@@ -610,8 +624,53 @@ Prefab:
     - target: {fileID: 114962278241190096, guid: 2748b943bb17a1e489ba16519159af0d,
         type: 2}
       propertyPath: usingKeyboard
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 114962278241190096, guid: 2748b943bb17a1e489ba16519159af0d,
+        type: 2}
+      propertyPath: usingOnScreen
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 114962278241190096, guid: 2748b943bb17a1e489ba16519159af0d,
+        type: 2}
+      propertyPath: stick
+      value: 
+      objectReference: {fileID: 1919956326}
+    - target: {fileID: 114962278241190096, guid: 2748b943bb17a1e489ba16519159af0d,
+        type: 2}
+      propertyPath: pitchDamp
+      value: 0.9
+      objectReference: {fileID: 0}
+    - target: {fileID: 114962278241190096, guid: 2748b943bb17a1e489ba16519159af0d,
+        type: 2}
+      propertyPath: rollDamp
+      value: 0.9
+      objectReference: {fileID: 0}
+    - target: {fileID: 114962278241190096, guid: 2748b943bb17a1e489ba16519159af0d,
+        type: 2}
+      propertyPath: greenButton
+      value: 
+      objectReference: {fileID: 1853922104}
+    - target: {fileID: 114962278241190096, guid: 2748b943bb17a1e489ba16519159af0d,
+        type: 2}
+      propertyPath: speed
+      value: 50
+      objectReference: {fileID: 0}
+    - target: {fileID: 114962278241190096, guid: 2748b943bb17a1e489ba16519159af0d,
+        type: 2}
+      propertyPath: redButton
+      value: 
+      objectReference: {fileID: 1603914092}
+    - target: {fileID: 114962278241190096, guid: 2748b943bb17a1e489ba16519159af0d,
+        type: 2}
+      propertyPath: leftButton
+      value: 
+      objectReference: {fileID: 1366760017}
+    - target: {fileID: 114962278241190096, guid: 2748b943bb17a1e489ba16519159af0d,
+        type: 2}
+      propertyPath: rightButton
+      value: 
+      objectReference: {fileID: 311166697}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 2748b943bb17a1e489ba16519159af0d, type: 2}
   m_IsPrefabAsset: 0
@@ -689,7 +748,7 @@ GameObject:
   - component: {fileID: 1254774401}
   - component: {fileID: 1254774400}
   m_Layer: 5
-  m_Name: Stick_Joy
+  m_Name: Handle
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -703,23 +762,23 @@ RectTransform:
   m_GameObject: {fileID: 1254774398}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1.4523115, y: 1.4523115, z: 1.4523115}
+  m_LocalScale: {x: 0.7482799, y: 0.7482799, z: 0.7482799}
   m_Children: []
-  m_Father: {fileID: 1498086707}
-  m_RootOrder: 7
+  m_Father: {fileID: 1919956325}
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 88.855, y: 88.855}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 200, y: 200}
-  m_Pivot: {x: 0, y: 0}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1254774400
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1254774398}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 1392445389, guid: f70555f144d8491a825f0804e09c671c, type: 3}
   m_Name: 
@@ -947,7 +1006,7 @@ MonoBehaviour:
     m_PressedColor: {r: 0.49056602, g: 0.49056602, b: 0.49056602, a: 1}
     m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
     m_ColorMultiplier: 1
-    m_FadeDuration: 0.1
+    m_FadeDuration: 0
   m_SpriteState:
     m_HighlightedSprite: {fileID: 0}
     m_PressedSprite: {fileID: 0}
@@ -1090,7 +1149,6 @@ RectTransform:
   - {fileID: 311166696}
   - {fileID: 1366760016}
   - {fileID: 1919956325}
-  - {fileID: 1254774399}
   m_Father: {fileID: 0}
   m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -1159,7 +1217,7 @@ MonoBehaviour:
     m_PressedColor: {r: 0.49056602, g: 0.49056602, b: 0.49056602, a: 1}
     m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
     m_ColorMultiplier: 1
-    m_FadeDuration: 0.1
+    m_FadeDuration: 0
   m_SpriteState:
     m_HighlightedSprite: {fileID: 0}
     m_PressedSprite: {fileID: 0}
@@ -1341,6 +1399,10 @@ Prefab:
       propertyPath: m_CastShadows
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 100000, guid: 9485b0c79d11e2e4d0007da98d76c639, type: 2}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 9485b0c79d11e2e4d0007da98d76c639, type: 2}
   m_IsPrefabAsset: 0
@@ -1377,7 +1439,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0}
   m_AnchorMax: {x: 1, y: 0}
-  m_AnchoredPosition: {x: -147.94012, y: 99.45395}
+  m_AnchoredPosition: {x: -147.94012, y: 99.45386}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 1, y: 0}
 --- !u!114 &1853922104
@@ -1404,7 +1466,7 @@ MonoBehaviour:
     m_PressedColor: {r: 0.49056602, g: 0.49056602, b: 0.49056602, a: 1}
     m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
     m_ColorMultiplier: 1
-    m_FadeDuration: 0.1
+    m_FadeDuration: 0
   m_SpriteState:
     m_HighlightedSprite: {fileID: 0}
     m_PressedSprite: {fileID: 0}
@@ -1482,7 +1544,8 @@ RectTransform:
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1.9408665, y: 1.9408665, z: 1.9408665}
-  m_Children: []
+  m_Children:
+  - {fileID: 1254774399}
   m_Father: {fileID: 1498086707}
   m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -1499,39 +1562,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 1919956324}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 1392445389, guid: f70555f144d8491a825f0804e09c671c, type: 3}
+  m_Script: {fileID: 11500000, guid: 35432f1e0bcce594ab0783cb30238e2c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Navigation:
-    m_Mode: 3
-    m_SelectOnUp: {fileID: 0}
-    m_SelectOnDown: {fileID: 0}
-    m_SelectOnLeft: {fileID: 0}
-    m_SelectOnRight: {fileID: 0}
-  m_Transition: 1
-  m_Colors:
-    m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
-    m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_PressedColor: {r: 0.49056602, g: 0.49056602, b: 0.49056602, a: 1}
-    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
-    m_ColorMultiplier: 1
-    m_FadeDuration: 0.1
-  m_SpriteState:
-    m_HighlightedSprite: {fileID: 0}
-    m_PressedSprite: {fileID: 0}
-    m_DisabledSprite: {fileID: 0}
-  m_AnimationTriggers:
-    m_NormalTrigger: Normal
-    m_HighlightedTrigger: Highlighted
-    m_PressedTrigger: Pressed
-    m_DisabledTrigger: Disabled
-  m_Interactable: 1
-  m_TargetGraphic: {fileID: 1919956327}
-  m_OnClick:
-    m_PersistentCalls:
-      m_Calls: []
-    m_TypeName: UnityEngine.UI.Button+ButtonClickedEvent, UnityEngine.UI, Version=1.0.0.0,
-      Culture=neutral, PublicKeyToken=null
+  joystickStaysInFixedPosition: 1
+  joystickHandleDistance: 4
 --- !u!114 &1919956327
 MonoBehaviour:
   m_ObjectHideFlags: 0

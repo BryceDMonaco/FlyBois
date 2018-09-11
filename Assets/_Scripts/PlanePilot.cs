@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using PigeonCoopToolkit.Effects.Trails;
 using InControl;
+using UnityEngine.UI;
 
 public class PlanePilot : MonoBehaviour {
     //public PlayerActions Actions { get; set; }
@@ -10,6 +11,8 @@ public class PlanePilot : MonoBehaviour {
     public int playerNumber = 1;        //Eventually this number will be assigned 
 
     public bool usingKeyboard = false;  //Should be under control variables but it's a commonly used var
+
+    public bool usingOnScreen = false;
 
     public int playerHealth = 100;
 
@@ -75,6 +78,12 @@ public class PlanePilot : MonoBehaviour {
     public float stickYSensitivity = 1f;
     public float stickXSensitivity = 1f;
 
+    public SingleJoystick stick;
+    public Button greenButton;
+    public Button redButton;
+    public Button leftButton;
+    public Button rightButton;
+
     private InputDevice myInDevice;
 
     //--------------------------------------------------------------------------------------------------------------//
@@ -108,7 +117,13 @@ public class PlanePilot : MonoBehaviour {
     {
         GameObject.Find("_ScreenManager").GetComponent<ScreenManager>().ChangePlayerCount(1);
 
-        if (!usingKeyboard)
+        if (usingKeyboard && usingOnScreen)
+        {
+            Debug.LogError("ERROR: USING KEYBOARD AND ONSCREEN");
+
+        }
+
+        if (!usingKeyboard && !usingOnScreen)
         {
             myInDevice = InputManager.Devices[playerNumber - 1];
 
@@ -190,8 +205,11 @@ public class PlanePilot : MonoBehaviour {
             //transform.Rotate(myInDevice.LeftStickY * pitchDamp, yawDirection * yawDamp, -myInDevice.LeftStickX * rollDamp);
             //transform.Rotate(Input.GetAxis("Vertical") * pitchDamp, 0f, -Input.GetAxis("Horizontal") * rollDamp);
 
+            //Check if a button is held down, uses the color, but I can't find a better way
+            bool greenButtonHeld = greenButton.GetComponent<CanvasRenderer>().GetColor() == greenButton.GetComponent<Button>().colors.pressedColor * greenButton.GetComponent<Button>().colors.colorMultiplier;
+
             //Firing Controls
-            if (canShoot && isAlive && myInDevice.RightTrigger.IsPressed)
+            if (canShoot && isAlive && ((!usingKeyboard && !usingOnScreen && myInDevice.RightTrigger.IsPressed) || greenButtonHeld))
             {
                 StartCoroutine (ShotTimer());
 
@@ -355,7 +373,7 @@ public class PlanePilot : MonoBehaviour {
         Vector3 inputs = new Vector3(0f, 0f, 0f); //Pitch = x, Yaw = y, Roll = z
 
         //Pitch
-        if (!usingKeyboard) //Controller Pitch Up and Down
+        if (!usingKeyboard && !usingOnScreen) //Controller Pitch Up and Down
         {
             inputs.x = myInDevice.LeftStickY * stickYSensitivity;
 
@@ -369,15 +387,19 @@ public class PlanePilot : MonoBehaviour {
         {
             inputs.x = 1f;
 
+        } else if (usingOnScreen)
+        {
+            inputs.x = stick.GetInputDirection().y;
+
         }
 
         //Yaw
-        if (!usingKeyboard && myInDevice.LeftBumper.IsPressed && !myInDevice.RightBumper.IsPressed)         //Controller Yaw Left
+        if (!usingKeyboard  && !usingOnScreen && myInDevice.LeftBumper.IsPressed && !myInDevice.RightBumper.IsPressed)         //Controller Yaw Left
         {
             inputs.y = -1f;
 
         }
-        else if (!usingKeyboard && myInDevice.RightBumper.IsPressed && !myInDevice.LeftBumper.IsPressed)  //Controller Yaw Right
+        else if (!usingKeyboard  && !usingOnScreen && myInDevice.RightBumper.IsPressed && !myInDevice.LeftBumper.IsPressed)  //Controller Yaw Right
         {
             inputs.y = 1f;
 
@@ -391,10 +413,30 @@ public class PlanePilot : MonoBehaviour {
         {
             inputs.y = 1f;
 
+        } else if (usingOnScreen)
+        {
+            //Check if a button is held down, uses the color, but I can't find a better way
+            bool leftButtonHeld = leftButton.GetComponent<CanvasRenderer>().GetColor() == leftButton.GetComponent<Button>().colors.pressedColor * leftButton.GetComponent<Button>().colors.colorMultiplier;
+            bool rightButtonHeld = rightButton.GetComponent<CanvasRenderer>().GetColor() == rightButton.GetComponent<Button>().colors.pressedColor * rightButton.GetComponent<Button>().colors.colorMultiplier;
+
+            if (leftButtonHeld && rightButtonHeld)
+            {
+                inputs.y = 0f;
+
+            } else if (leftButtonHeld)
+            {
+                inputs.y = -1f;
+
+            } else if (rightButtonHeld)
+            {
+                inputs.y = 1f;
+
+            }
+
         }
 
         //Roll
-        if (!usingKeyboard) //Controller Roll Left and Right
+        if (!usingKeyboard && !usingOnScreen) //Controller Roll Left and Right
         {
             inputs.z = -myInDevice.LeftStickX * stickXSensitivity;
 
@@ -407,6 +449,10 @@ public class PlanePilot : MonoBehaviour {
         else if (usingKeyboard && Input.GetKey(rollRight) && !Input.GetKey(rollLeft))  //KB Roll Right
         {
             inputs.z = -1f;
+
+        } else if (usingOnScreen)
+        {
+            inputs.z = -stick.GetInputDirection().x;
 
         }
 
@@ -451,12 +497,12 @@ public class PlanePilot : MonoBehaviour {
         float rudderDirection = 0f;
 
         //Rudder
-        if (!usingKeyboard && myInDevice.LeftBumper.IsPressed && !myInDevice.RightBumper.IsPressed)         //Controller Yaw Left
+        if (!usingKeyboard && !usingOnScreen && myInDevice.LeftBumper.IsPressed && !myInDevice.RightBumper.IsPressed)         //Controller Yaw Left
         {
             rudderDirection = 1f;
 
         }
-        else if (!usingKeyboard && myInDevice.RightBumper.IsPressed && !myInDevice.LeftBumper.IsPressed)  //Controller Yaw Right
+        else if (!usingKeyboard  && !usingOnScreen && myInDevice.RightBumper.IsPressed && !myInDevice.LeftBumper.IsPressed)  //Controller Yaw Right
         {
             rudderDirection = -1f;
 
@@ -470,6 +516,25 @@ public class PlanePilot : MonoBehaviour {
         {
             rudderDirection = -1f;
 
+        } else if (usingOnScreen)
+        {
+            bool leftButtonHeld = leftButton.GetComponent<CanvasRenderer>().GetColor() == leftButton.GetComponent<Button>().colors.pressedColor * leftButton.GetComponent<Button>().colors.colorMultiplier;
+            bool rightButtonHeld = rightButton.GetComponent<CanvasRenderer>().GetColor() == rightButton.GetComponent<Button>().colors.pressedColor * rightButton.GetComponent<Button>().colors.colorMultiplier;
+
+            if (leftButtonHeld && rightButtonHeld)
+            {
+                rudderDirection = 0f;
+
+            } else if (leftButtonHeld)
+            {
+                rudderDirection = 1f;
+
+            } else if (rightButtonHeld)
+            {
+                rudderDirection = -1f;
+
+            }
+
         }
 
         rudder.localRotation = Quaternion.Euler(new Vector3(0f, rudderDirection * maxFlapAngle, 0f));
@@ -477,7 +542,7 @@ public class PlanePilot : MonoBehaviour {
         float aileronDirection = 0f;
 
         //Ailerons
-        if (!usingKeyboard) //Controller Roll Left and Right
+        if (!usingKeyboard && !usingOnScreen) //Controller Roll Left and Right
         {
             aileronDirection = -myInDevice.LeftStickX;
 
@@ -491,6 +556,10 @@ public class PlanePilot : MonoBehaviour {
         {
             aileronDirection = -1f;
 
+        } else if (usingOnScreen)
+        {
+            aileronDirection = stick.GetInputDirection().x;
+
         }
 
         leftAileron.localRotation = Quaternion.Euler(new Vector3(maxFlapAngle, 0f, 0f) * -aileronDirection + leftAileronRestingRotation.eulerAngles);
@@ -499,7 +568,7 @@ public class PlanePilot : MonoBehaviour {
         float elevatorDirection = 0f;
 
         //Elevators
-        if (!usingKeyboard) //Controller Pitch Up and Down
+        if (!usingKeyboard && !usingOnScreen ) //Controller Pitch Up and Down
         {
             elevatorDirection = myInDevice.LeftStickY;
 
@@ -512,6 +581,10 @@ public class PlanePilot : MonoBehaviour {
         else if (usingKeyboard && Input.GetKey(pitchDown) && !Input.GetKey(pitchUp))  //KB Pitch Down
         {
             elevatorDirection = 1f;
+
+        } else if (usingOnScreen)
+        {
+            elevatorDirection = stick.GetInputDirection().y;
 
         }
 
@@ -529,4 +602,62 @@ public class PlanePilot : MonoBehaviour {
         rightElevatorRestingRotation = rightElevator.localRotation;
 
     }
+
+    float GetGameCubeStickY (Vector2 sentCoords)
+    {
+        float n = Mathf.Cos(Mathf.Deg2Rad * 22.5f) / Mathf.Sin(Mathf.Deg2Rad * 22.5f);
+        float m = 1 / n;
+
+        float a = 2.4f;
+        float b = 1f;
+
+        float x = sentCoords.x;
+        float y = 0;
+
+        if (sentCoords.y >= 0)
+        {
+            if (-1 <= x && x <= -0.7f)
+            {
+                y = (n * x) + a;
+
+            } else if (-0.7f < x && x <= 0) 
+            {
+                y = (m * x) + b;
+
+            } else if (0 < x && x <= 0.7f) 
+            {
+                y = (-m * x) + b;
+
+            } else if (0.7f < x && x <= 1)
+            {
+	            y = (-n * x) + a;
+
+            }
+
+        } else if (sentCoords.y < 0) 
+        {
+            if (-1 <= x && x <= -0.7f)
+            {
+                y = (-n * x) - a;
+
+            } else if (-0.7f < x && x <= 0) 
+            {
+                y = (-m * x) - b;
+
+            } else if (0 < x && x <= 0.7f) 
+            {
+                y = (m * x) - b;
+
+            } else if (0.7f < x && x <= 1)
+            {
+                y = (n * x) - a;
+
+            }
+
+        }
+
+        return y;
+
+    }
+
 }

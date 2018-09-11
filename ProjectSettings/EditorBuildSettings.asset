@@ -4,4 +4,8 @@
 EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
-  m_Scenes: []
+  m_Scenes:
+  - enabled: 1
+    path: Assets/Mustang/Stang.unity
+    guid: 911ba94e6c9b40f4db2e88dea94a167a
+  m_configObjects: {}
