@@ -46,6 +46,9 @@ public class PlanePilot : MonoBehaviour {
     public int numberOfGuns = 4;
     public int gunDamage = 10;
 
+    public Rigidbody bullet;
+    public float bulletForce = 1000;
+
     private bool canShoot = true;
     private int shotCycle = 0;
 
@@ -115,6 +118,13 @@ public class PlanePilot : MonoBehaviour {
 	// Use this for initialization
 	void Start ()
     {
+        if (SystemInfo.deviceType == DeviceType.Handheld)
+        {
+            usingKeyboard = false;
+            usingOnScreen = true;
+
+        }
+
         GameObject.Find("_ScreenManager").GetComponent<ScreenManager>().ChangePlayerCount(1);
 
         if (usingKeyboard && usingOnScreen)
@@ -209,23 +219,46 @@ public class PlanePilot : MonoBehaviour {
             bool greenButtonHeld = greenButton.GetComponent<CanvasRenderer>().GetColor() == greenButton.GetComponent<Button>().colors.pressedColor * greenButton.GetComponent<Button>().colors.colorMultiplier;
 
             //Firing Controls
-            if (canShoot && isAlive && ((!usingKeyboard && !usingOnScreen && myInDevice.RightTrigger.IsPressed) || greenButtonHeld))
+            if (canShoot && isAlive && ((!usingKeyboard && !usingOnScreen && myInDevice.RightTrigger.IsPressed) || greenButtonHeld || (usingKeyboard && Input.GetKey(KeyCode.Space))))
             {
                 StartCoroutine (ShotTimer());
 
-                StartCoroutine (ShotLifetime(shotRenders[shotCycle]));
+                //StartCoroutine (ShotLifetime(shotRenders[shotCycle]));
+
+                Rigidbody bul = Instantiate (bullet, shotRenders[shotCycle].transform.position, Quaternion.identity);
+
+                //bul.transform.LookAt(aimPoint);
+
+                GameObject.Destroy(bul.gameObject, 5f);
 
                 RaycastHit hit;
 
-                if (Physics.Raycast(myCameraTransform.position, myCameraTransform.forward, out hit, 500))
+                if (Physics.Raycast(myCameraTransform.position, myCameraTransform.forward, out hit, 500, ~LayerMask.GetMask("Plane")))
                 {
+                    Debug.Log("Hit " + hit.collider.name);
+
                     if (hit.collider.gameObject.CompareTag("Player"))
                     {
                         hit.collider.transform.GetComponent<Target>().DoDamage(gunDamage);
 
                     }
 
+                    bul.transform.LookAt(hit.point);
+
+                    GameObject dbSphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+                    dbSphere.transform.position = hit.point;
+
+                } else
+                {
+                    Ray ray = new Ray(myCameraTransform.position, myCameraTransform.forward);
+                    Physics.Raycast(ray, 500, ~LayerMask.GetMask("Plane"));
+                    bul.transform.LookAt(ray.GetPoint(500f));
+
                 }
+
+                
+
+                bul.AddForce(bul.transform.forward * bulletForce);
 
                 shotCycle++;
 
@@ -260,7 +293,21 @@ public class PlanePilot : MonoBehaviour {
 
     void OnTriggerEnter (Collider col)
     {
-        Respawn ();
+        if (col.CompareTag("Ring"))
+        {
+            Debug.Log("Score!");
+
+        } else if (col.CompareTag("Bullet"))
+        {
+            //Do nothing, ignore the collsion
+            
+        } else
+        {
+            Respawn ();
+
+
+        }
+        
 
     }
 

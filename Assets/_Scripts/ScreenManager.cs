@@ -6,6 +6,12 @@ public class ScreenManager : MonoBehaviour {
 
     public int playerCount = 0;
 
+    void Awake () 
+    {
+        Application.targetFrameRate = 60;
+
+    }
+
 	// Use this for initialization
 	void Start () {
 		
