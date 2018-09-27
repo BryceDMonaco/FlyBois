@@ -21,10 +21,10 @@ public class PlanePilot : MonoBehaviour {
     [Header("Speed Values")]
     public float speed = 50f;
 
-    [Range(0f, 1f)]
+    [Range(0f, 2f)]
     public float pitchDamp = 1f;
 
-    [Range(0f, 1f)]
+    [Range(0f, 2f)]
     public float rollDamp = .7f;
 
     [Range(0f, 1f)]
@@ -245,8 +245,9 @@ public class PlanePilot : MonoBehaviour {
 
                     bul.transform.LookAt(hit.point);
 
-                    GameObject dbSphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-                    dbSphere.transform.position = hit.point;
+                    //Debug code which creates a sphere at the hit position of the raycast
+                    //GameObject dbSphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+                    //dbSphere.transform.position = hit.point;
 
                 } else
                 {
