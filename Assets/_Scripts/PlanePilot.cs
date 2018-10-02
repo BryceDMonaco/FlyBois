@@ -87,6 +87,8 @@ public class PlanePilot : MonoBehaviour {
     public Button leftButton;
     public Button rightButton;
 
+    public Image reticleImage;
+
     private InputDevice myInDevice;
 
     //--------------------------------------------------------------------------------------------------------------//
@@ -237,7 +239,7 @@ public class PlanePilot : MonoBehaviour {
 
                 RaycastHit hit;
 
-                if (Physics.Raycast(myCameraTransform.position, myCameraTransform.forward, out hit, 500, ~LayerMask.GetMask("Plane")))
+                if (Physics.SphereCast(myCameraTransform.position, 5f, myCameraTransform.forward, out hit, 500, ~LayerMask.GetMask("Plane", "Ignore Raycast")))
                 {
                     Debug.Log("Hit " + hit.collider.name);
 
@@ -261,8 +263,6 @@ public class PlanePilot : MonoBehaviour {
 
                 }
 
-                
-
                 bul.AddForce(bul.transform.forward * bulletForce);
 
                 shotCycle++;
@@ -274,6 +274,22 @@ public class PlanePilot : MonoBehaviour {
                 }
             }
         }
+    }
+
+    void FixedUpdate ()
+    {
+        RaycastHit hit;
+
+        if (Physics.SphereCast(myCameraTransform.position, 5f, myCameraTransform.forward, out hit, 200, ~LayerMask.GetMask("Plane", "Ignore Raycast")) && hit.collider.CompareTag("Player"))
+                {
+                    reticleImage.color = new Color (1f, 0f, 0f, 81f / 255f); //Red with A value of 81
+
+                } else
+                {
+                    reticleImage.color = new Color (1f, 1f, 1f, 81f / 255f); //White with A value of 81
+
+                }
+
     }
 
     IEnumerator ShotTimer ()
