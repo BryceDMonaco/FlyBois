@@ -123,6 +123,10 @@ public class PlanePilot : MonoBehaviour {
             usingKeyboard = false;
             usingOnScreen = true;
 
+            pitchDamp = 0.9f;
+            yawDamp = 0.7f;
+            rollDamp = 0.9f;
+
         }
 
         GameObject.Find("_ScreenManager").GetComponent<ScreenManager>().ChangePlayerCount(1);
