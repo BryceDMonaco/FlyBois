@@ -5,6 +5,12 @@ using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour {
 
+	/*
+		TargetScore		Destroy the most targets in a set amount of time
+		TargetTime		Destroy all of the targets in the fastest time
+		GoalScore		Reach as many goals as possible in a set amount of time
+		GoalTime		Reach all the goals in the fastest time
+	 */
 	public enum GameModes {TargetScore, TargetTime, GoalScore, GoalTime, Free};
 
 	public bool isGameOver = false;
@@ -25,6 +31,11 @@ public class GameManager : MonoBehaviour {
 
 	//Optional Param, only needed to be not null if the game mode requires it
 	public Target[] targets; //Array of all the targets in the map, in the order they should be destroyed (if any order)
+
+	public Transform targetPositionHolder; //The _TargetHolder GameObject
+	public Transform[] targetPositions; //Array of all the potential positions to spawn targets at
+	public GameObject targetObject; //Stores the prefab of the target to spawn
+	public int numberOfTargetsToSpawn = 10; //How many targets should be spawned? (0 < numberOfTargetsToSpawn <= targetPositions.length())
 	
 	//Optional Param, only needed to be not null if the game mode requires it
 	public Goal[] goals; //Array of all the goals in the map, in the order they should be flown through
@@ -42,6 +53,13 @@ public class GameManager : MonoBehaviour {
 		isGameTimeBased = (thisGameMode == GameModes.GoalTime) || (thisGameMode == GameModes.TargetTime);
 
 		startTime = Time.time;
+
+		if ((thisGameMode == GameModes.TargetScore || thisGameMode == GameModes.TargetTime) && targets.Length == 0)
+		{
+
+			SpawnTargetsAtRandomPositions ();
+
+		}
 
 		//Debug.Log ("4628.5s to timer = " + GetTimeFormattedAsTimer(4628.5f)); //Used to test for output of 01:17:08.500
 
@@ -142,8 +160,6 @@ public class GameManager : MonoBehaviour {
 
 		if (sentTime > 0f)
 		{
-			Debug.Log("Timer is " + sentTime.ToString());
-
 			secondCount = sentTime;
 
 			if (secondCount < 10)
@@ -161,6 +177,40 @@ public class GameManager : MonoBehaviour {
 		}
 
 		return finalString;
+
+	}
+
+	void SpawnTargetsAtRandomPositions ()
+	{
+		targets = new Target[numberOfTargetsToSpawn];
+
+		bool[] pointUsed = new bool[targetPositions.Length]; //Used to make sure multiple targets do not spawn in the same location
+
+		for (int i = 0; i < numberOfTargetsToSpawn; i++)
+		{
+			bool pointFound = false;
+			int index = 0;
+
+
+			while (!pointFound)
+			{
+				index = Random.Range (0, targetPositions.Length); //Pick an index
+
+				pointFound = !pointUsed[index]; //If that index isn't already used then a point is found
+
+			}
+
+			pointUsed [index] = true; //Mark that newly found point as used
+
+			Vector3 randRotation = new Vector3 (90, Random.Range (0, 180), 0);
+
+			GameObject trg = Instantiate (targetObject, targetPositions [index].position, Quaternion.Euler(randRotation));
+
+			targets [i] = trg.GetComponent<Target> ();
+
+		}
+
+		return;
 
 	}
 }
