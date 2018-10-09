@@ -79,7 +79,41 @@ public class GameManager : MonoBehaviour {
 
 
 		}
+
+		CheckIfGameOver (thisGameMode);
+
+		if (isGameOver)
+		{
+			Time.timeScale = 0f;
+
+			FindObjectOfType<PlanePilot>().enabled = false;
+
+		}
 		
+	}
+
+	public void CheckIfGameOver (GameModes mode)
+	{
+		if (mode == GameModes.TargetScore && (score == numberOfTargetsToSpawn * 10 || Time.time >= (startTime + timeAllowed)))
+		{
+			isGameOver = true;
+			primaryText.text = "Game Over!";
+			secondaryText.text = "Score: " + score.ToString () + " | ";
+
+			int remainingCount = numberOfTargetsToSpawn - (score / 10);
+
+			if (remainingCount > 0)
+			{
+				secondaryText.text += "Targets Remaining: " + remainingCount.ToString();
+
+			} else
+			{
+				secondaryText.text += "All Targets Destroyed";
+
+			}
+
+		}
+
 	}
 
 	public void UpdateScore (int value)
