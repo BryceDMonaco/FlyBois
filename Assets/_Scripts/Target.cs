@@ -10,8 +10,12 @@ public class Target : MonoBehaviour {
 
     private GameManager gameManager;
 
+    private int initialHealth;
+
 	// Use this for initialization
 	void Start () {
+        initialHealth = health;
+
 		gameManager = FindObjectOfType<GameManager>();
 	}
 	
@@ -28,13 +32,82 @@ public class Target : MonoBehaviour {
         {
             gameManager.UpdateScore(pointsWorth);
 
-            GameObject exp = Instantiate(explosion, transform.position, transform.rotation);
+            if (gameManager.thisGameMode == GameModes.TargetScore)
+            {
+                Kill ();
 
-            Destroy(exp, 5f);
+            } else {
+                KillAndDestroy ();
 
-            Destroy(gameObject);
+
+            }
+
 
         }
+
+    }
+
+    void Kill ()
+    {
+        GameObject exp = Instantiate(explosion, transform.position, transform.rotation);
+
+        Destroy(exp, 5f);
+
+        gameObject.SetActive(false);
+
+        bool[] positionUsed = new bool[gameManager.targetPositions.Length];
+        Transform[] targetPositions = gameManager.targetPositions;
+
+        int thisIndex = -1;
+
+        foreach (Target trg in gameManager.targets)
+        {
+            Vector3 trgPosition = trg.transform.position;
+
+            for (int i = 0; i < gameManager.targetPositions.Length; i++)
+            {
+                if (trgPosition == targetPositions [i].position)
+                {
+                    positionUsed [i] = true;
+
+                    if (trg == this)
+                    {
+                        thisIndex = i;
+
+                    }
+
+                }
+
+            }
+
+        }
+
+        bool pointFound = false;
+        int index = 0;
+
+        while (!pointFound)
+        {
+            index = Random.Range (0, targetPositions.Length); //Pick an index
+
+            pointFound = !positionUsed [index]; //If that index isn't already used then a point is found
+
+        }
+
+        transform.position = targetPositions [index].position;
+
+        health = initialHealth;
+
+        gameObject.SetActive (true);
+
+    }
+
+    void KillAndDestroy ()
+    {
+        GameObject exp = Instantiate(explosion, transform.position, transform.rotation);
+
+        Destroy(exp, 5f);
+
+        Destroy(gameObject);
 
     }
 }
