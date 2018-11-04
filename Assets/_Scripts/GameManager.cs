@@ -28,15 +28,18 @@ public class GameManager : MonoBehaviour {
 	public Transform[] targetPositions; //Array of all the potential positions to spawn targets at
 	public GameObject targetObject; //Stores the prefab of the target to spawn
 	public int numberOfTargetsToSpawn = 10; //How many targets should be spawned? (0 < numberOfTargetsToSpawn <= targetPositions.length())
-	
+
 	//Optional Param, only needed to be not null if the game mode requires it
 	public Goal[] goals; //Array of all the goals in the map, in the order they should be flown through
 	private Goal currentGoal; //The next goal that the player should fly through
+	private int currentGoalIndex = 0;
 
 	public float timeAllowed = 60f; //The time to count down from, in seconds
 	public string timerString; //The timer converted to a string value in the format MM:SS.MS
 	private float startTime; //The time when the timer has started
 	private float currentTime; //The time currently
+
+	public AlwaysPoint arrow; //The arrow which the plan uses to point to the next goal
 
 	// Use this for initialization
 	void Start () {
@@ -50,6 +53,13 @@ public class GameManager : MonoBehaviour {
 		{
 
 			SpawnTargetsAtRandomPositions ();
+
+		} else 
+		{
+			currentGoal = goals[currentGoalIndex];
+
+			arrow.gameObject.SetActive(true);
+			arrow.target = currentGoal.transform;
 
 		}
 
@@ -103,6 +113,12 @@ public class GameManager : MonoBehaviour {
 				secondaryText.text += "All Targets Destroyed";
 
 			}
+
+		} else if (mode ==GameModes.GoalTime && currentGoalIndex >= goals.Length)
+		{
+			isGameOver = true;
+			primaryText.text = "Lap Complete!";
+			secondaryText.text = "Time: " + GetCurrentTimeFormattedAsTimer ();
 
 		}
 
@@ -235,6 +251,23 @@ public class GameManager : MonoBehaviour {
 			targets [i] = trg.GetComponent<Target> ();
 
 		}
+
+		return;
+
+	}
+
+	void EnableNextGoal ()
+	{
+		currentGoalIndex++;
+
+		if (currentGoalIndex < goals.Length) //Check to make sure not going out of bounds
+		{
+			currentGoal = goals [currentGoalIndex];
+
+		} 
+
+		//The else condition, where all goals have been reached, means the game is over, should be
+		//...detected by CheckIfGameOver () when the game mode is GoalTime
 
 		return;
 

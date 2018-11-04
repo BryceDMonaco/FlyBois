@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Goal : MonoBehaviour {
 
-	public GameObject confetti;
+	public ParticleSystem confetti;
 
 	// Use this for initialization
 	void Start () {
@@ -20,9 +20,7 @@ public class Goal : MonoBehaviour {
 	{
 		if (col.gameObject.name == "PlaneObject") //Checking for a tag would be faster
 		{
-			GameObject con = Instantiate (confetti, transform.position, transform.rotation);
-
-			Destroy (con, 10f);
+			confetti.Emit (30);
 
 		}
 
