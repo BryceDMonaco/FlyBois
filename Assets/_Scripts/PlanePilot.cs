@@ -17,6 +17,9 @@ public class PlanePilot : MonoBehaviour {
     public int playerHealth = 100;
 
     private bool isAlive = true;
+
+    public int deathPenalty = -5;
+
     //--------------------------------------------------------------------------------------------------------------//
     [Header("Speed Values")]
     public float speed = 50f;
@@ -115,11 +118,14 @@ public class PlanePilot : MonoBehaviour {
     private Quaternion spawnRotation;
     private float screenW;
     private float screenH;
+    private GameManager manager;
     
 
 	// Use this for initialization
 	void Start ()
     {
+        manager = FindObjectOfType <GameManager> ();
+
         if (SystemInfo.deviceType == DeviceType.Handheld)
         {
             usingKeyboard = false;
@@ -349,6 +355,8 @@ public class PlanePilot : MonoBehaviour {
         GameObject exp = Instantiate(explosion, transform.position, transform.rotation);
 
         Destroy(exp, 5f);
+
+        manager.UpdateScore (deathPenalty);
 
     }
 

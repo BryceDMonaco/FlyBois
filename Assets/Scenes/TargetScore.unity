@@ -1150,6 +1150,11 @@ Prefab:
       propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 114962278241190096, guid: 2748b943bb17a1e489ba16519159af0d,
+        type: 2}
+      propertyPath: deathPenalty
+      value: -5
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 2748b943bb17a1e489ba16519159af0d, type: 2}
   m_IsPrefabAsset: 0
