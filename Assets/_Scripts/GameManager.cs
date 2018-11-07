@@ -13,6 +13,7 @@ public class GameManager : MonoBehaviour {
 
 	public Text primaryText;
 	public Text secondaryText;
+	public Text leaderText;
 
 	[Header("Game Mode Selection")]
 
@@ -89,6 +90,10 @@ public class GameManager : MonoBehaviour {
 			Time.timeScale = 0f;
 
 			FindObjectOfType<PlanePilot>().enabled = false;
+
+			GenerateLeaderboard ();
+
+			leaderText.gameObject.SetActive (true);
 
 		}
 		
@@ -270,6 +275,74 @@ public class GameManager : MonoBehaviour {
 		//...detected by CheckIfGameOver () when the game mode is GoalTime
 
 		return;
+
+	}
+
+	void GenerateLeaderboard ()
+	{
+		if (thisGameMode == GameModes.TargetScore)
+		{
+			int[] topScores = new int[3];
+			string[] topNames = new string[3];
+
+			topScores [0] = PlayerPrefs.GetInt ("TS_1S", 50);
+			topScores [1] = PlayerPrefs.GetInt ("TS_2S", 40);
+			topScores [2] = PlayerPrefs.GetInt ("TS_3S", 30);
+
+			topNames [0] = PlayerPrefs.GetString ("TS_1N", "Maverick");
+			topNames [1] = PlayerPrefs.GetString ("TS_2N", "Goose");
+			topNames [2] = PlayerPrefs.GetString ("TS_3N", "Iceman");
+
+			int thisScore = score;
+			string thisName = PlayerPrefs.GetString ("PlayerName", "Player");
+
+			if (thisScore > topScores[0]) //Score is better than first place
+			{
+				//Move Second place down to third
+				topNames[2] = topNames[1];
+				topScores[2] = topScores[1];
+
+				//Move first place down to second
+				topNames[1] = topNames[0];
+				topScores[1] = topScores[0];
+
+				//Replace first place with the new first
+				topScores [0] = thisScore;
+				topNames [0] = thisName;
+
+			} else if (thisScore > topScores[1]) //Score is better than second but not first
+			{
+				//Move Second place down to third
+				topNames[2] = topNames[1];
+				topScores[2] = topScores[1];
+
+				//Replace second place with the new second
+				topScores [1] = thisScore;
+				topNames [1] = thisName;
+
+			} else if (thisScore > topScores[2]) //Score is better than third but not second or first
+			{
+				//Replace third place with the new third
+				topScores [2] = thisScore;
+				topNames [2] = thisName;
+
+			}
+
+			//Store the new highs
+			PlayerPrefs.SetInt ("TS_1S", topScores [0]);
+			PlayerPrefs.SetInt ("TS_2S", topScores [1]);
+			PlayerPrefs.SetInt ("TS_3S", topScores [2]);
+
+			PlayerPrefs.SetString ("TS_1N", topNames [0]);
+			PlayerPrefs.SetString ("TS_2N", topNames [1]);
+			PlayerPrefs.SetString ("TS_3N", topNames [2]);
+
+			leaderText.text = "Top Scores:\n"
+								+ topNames [0] + " - " + topScores [0].ToString() + "\n"
+								+ topNames [1] + " - " + topScores [1].ToString() + "\n"
+								+ topNames [2] + " - " + topScores [2].ToString();
+
+		}
 
 	}
 }
