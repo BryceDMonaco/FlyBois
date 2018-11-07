@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour {
 
@@ -15,6 +16,7 @@ public class GameManager : MonoBehaviour {
 	public Text primaryText;
 	public Text secondaryText;
 	public Text leaderText;
+	public Button menuButton;
 
 	[Header("Game Mode Selection")]
 
@@ -46,6 +48,8 @@ public class GameManager : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 		score = 0;
+
+		Time.timeScale = 1f;
 
 		isGameTimeBased = (thisGameMode == GameModes.GoalTime) || (thisGameMode == GameModes.TargetTime);
 
@@ -95,6 +99,7 @@ public class GameManager : MonoBehaviour {
 			GenerateLeaderboard ();
 
 			leaderText.gameObject.SetActive (true);
+			menuButton.gameObject.SetActive (true);
 
 			hasHandledGameOver = true;
 
@@ -346,6 +351,12 @@ public class GameManager : MonoBehaviour {
 								+ topNames [2] + " - " + topScores [2].ToString();
 
 		}
+
+	}
+
+	public void ReturnToMenu ()
+	{
+		SceneManager.LoadScene ("MainMenu");
 
 	}
 }
