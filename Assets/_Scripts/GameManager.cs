@@ -6,6 +6,7 @@ using UnityEngine.UI;
 public class GameManager : MonoBehaviour {
 
 	public bool isGameOver = false;
+	private bool hasHandledGameOver = false;
 
 	public int score = 0;
 
@@ -85,7 +86,7 @@ public class GameManager : MonoBehaviour {
 
 		CheckIfGameOver (thisGameMode);
 
-		if (isGameOver)
+		if (!hasHandledGameOver && isGameOver)
 		{
 			Time.timeScale = 0f;
 
@@ -94,6 +95,8 @@ public class GameManager : MonoBehaviour {
 			GenerateLeaderboard ();
 
 			leaderText.gameObject.SetActive (true);
+
+			hasHandledGameOver = true;
 
 		}
 		
@@ -299,11 +302,11 @@ public class GameManager : MonoBehaviour {
 			if (thisScore > topScores[0]) //Score is better than first place
 			{
 				//Move Second place down to third
-				topNames[2] = topNames[1];
+				topNames[2] = string.Copy(topNames[1]);
 				topScores[2] = topScores[1];
 
 				//Move first place down to second
-				topNames[1] = topNames[0];
+				topNames[1] = string.Copy(topNames[0]);
 				topScores[1] = topScores[0];
 
 				//Replace first place with the new first
@@ -313,7 +316,7 @@ public class GameManager : MonoBehaviour {
 			} else if (thisScore > topScores[1]) //Score is better than second but not first
 			{
 				//Move Second place down to third
-				topNames[2] = topNames[1];
+				topNames[2] = string.Copy(topNames[1]);
 				topScores[2] = topScores[1];
 
 				//Replace second place with the new second
