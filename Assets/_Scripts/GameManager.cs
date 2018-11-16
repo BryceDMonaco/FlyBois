@@ -32,16 +32,19 @@ public class GameManager : MonoBehaviour {
 	public Transform[] targetPositions; //Array of all the potential positions to spawn targets at
 	public GameObject targetObject; //Stores the prefab of the target to spawn
 	public int numberOfTargetsToSpawn = 10; //How many targets should be spawned? (0 < numberOfTargetsToSpawn <= targetPositions.length())
+	private int numberOfTargetsRemaining;
 
 	//Optional Param, only needed to be not null if the game mode requires it
 	public Goal[] goals; //Array of all the goals in the map, in the order they should be flown through
 	private Goal currentGoal; //The next goal that the player should fly through
 	private int currentGoalIndex = 0;
+	private int lapNumber = 0;
 
 	public float timeAllowed = 60f; //The time to count down from, in seconds
 	public string timerString; //The timer converted to a string value in the format MM:SS.MS
 	private float startTime; //The time when the timer has started
 	private float currentTime; //The time currently
+	private float endTime; //The time at gameover (for timed gamemodes)
 
 	public AlwaysPoint arrow; //The arrow which the plan uses to point to the next goal
 
@@ -59,6 +62,8 @@ public class GameManager : MonoBehaviour {
 		{
 
 			SpawnTargetsAtRandomPositions ();
+
+			numberOfTargetsRemaining = numberOfTargetsToSpawn; //Only used by TargetTime
 
 		} else 
 		{
@@ -109,7 +114,7 @@ public class GameManager : MonoBehaviour {
 
 	public void CheckIfGameOver (GameModes mode)
 	{
-		if (mode == GameModes.TargetScore && Time.time >= (startTime + timeAllowed))
+		if (mode == GameModes.TargetScore && Time.time >= (startTime + timeAllowed)) //Timer over
 		{
 			isGameOver = true;
 			primaryText.text = "Game Over!";
@@ -127,11 +132,25 @@ public class GameManager : MonoBehaviour {
 
 			}
 
-		} else if (mode ==GameModes.GoalTime && currentGoalIndex >= goals.Length)
+		} if (mode == GameModes.TargetTime && numberOfTargetsRemaining <= 0) //All targets destroyed
+		{
+			isGameOver = true;
+			endTime = Time.time;
+			primaryText.text = "Time: " + GetCurrentTimeFormattedAsTimer ();
+			secondaryText.text = "All Targets Destroyed!";
+
+		} else if (mode ==GameModes.GoalTime && currentGoalIndex >= goals.Length) //One lap completed
 		{
 			isGameOver = true;
 			primaryText.text = "Lap Complete!";
+			endTime = Time.time;
 			secondaryText.text = "Time: " + GetCurrentTimeFormattedAsTimer ();
+
+		} else if (mode ==GameModes.GoalScore && Time.time >= (startTime + timeAllowed)) //Timer over
+		{
+			isGameOver = true;
+			primaryText.text = "Game Over!";
+			secondaryText.text = "Score: " + score.ToString ();
 
 		}
 
@@ -142,6 +161,12 @@ public class GameManager : MonoBehaviour {
 		score += value;
 
 		return;
+
+	}
+
+	public void MarkTargetDestroyed ()
+	{
+		numberOfTargetsRemaining--;
 
 	}
 
@@ -273,14 +298,18 @@ public class GameManager : MonoBehaviour {
 	{
 		currentGoalIndex++;
 
-		if (currentGoalIndex < goals.Length) //Check to make sure not going out of bounds
+		if (currentGoalIndex < goals.Length && thisGameMode == GameModes.GoalTime) //Check to make sure not going out of bounds
 		{
 			currentGoal = goals [currentGoalIndex];
 
-		} 
+		}  else
+		{
+			currentGoalIndex = 0;
+			lapNumber++;
+			currentGoal = goals [currentGoalIndex];
 
-		//The else condition, where all goals have been reached, means the game is over, should be
-		//...detected by CheckIfGameOver () when the game mode is GoalTime
+
+		}
 
 		return;
 
@@ -349,6 +378,190 @@ public class GameManager : MonoBehaviour {
 								+ topNames [0] + " - " + topScores [0].ToString() + "\n"
 								+ topNames [1] + " - " + topScores [1].ToString() + "\n"
 								+ topNames [2] + " - " + topScores [2].ToString();
+
+		} else if (thisGameMode == GameModes.TargetTime)
+		{
+			float[] topScores = new float[3];
+			string[] topNames = new string[3];
+
+			topScores [0] = PlayerPrefs.GetFloat ("TT_1S", 30f);
+			topScores [1] = PlayerPrefs.GetFloat ("TT_2S", 60f);
+			topScores [2] = PlayerPrefs.GetFloat ("TT_3S", 90f);
+
+			topNames [0] = PlayerPrefs.GetString ("TT_1N", "Fox");
+			topNames [1] = PlayerPrefs.GetString ("TT_2N", "Falco");
+			topNames [2] = PlayerPrefs.GetString ("TT_3N", "Slippy");
+
+			string thisName = PlayerPrefs.GetString ("PlayerName", "Player");
+
+			if (endTime < topScores[0]) //Time is faster than best time
+			{
+				//Move Second place down to third
+				topNames[2] = string.Copy(topNames[1]);
+				topScores[2] = topScores[1];
+
+				//Move first place down to second
+				topNames[1] = string.Copy(topNames[0]);
+				topScores[1] = topScores[0];
+
+				//Replace first place with the new first
+				topScores [0] = endTime;
+				topNames [0] = thisName;
+
+			} else if (endTime < topScores[1]) //Time is faster than second but not first
+			{
+				//Move Second place down to third
+				topNames[2] = string.Copy(topNames[1]);
+				topScores[2] = topScores[1];
+
+				//Replace second place with the new second
+				topScores [1] = endTime;
+				topNames [1] = thisName;
+
+			} else if (endTime < topScores[2]) //Time is faster than third but not second or first
+			{
+				//Replace third place with the new third
+				topScores [2] = endTime;
+				topNames [2] = thisName;
+
+			}
+
+			//Store the new highs
+			PlayerPrefs.SetFloat ("TT_1S", topScores [0]);
+			PlayerPrefs.SetFloat ("TT_2S", topScores [1]);
+			PlayerPrefs.SetFloat ("TT_3S", topScores [2]);
+
+			PlayerPrefs.SetString ("TT_1N", topNames [0]);
+			PlayerPrefs.SetString ("TT_2N", topNames [1]);
+			PlayerPrefs.SetString ("TT_3N", topNames [2]);
+
+			leaderText.text = "Top Times:\n"
+								+ topNames [0] + " - " + GetTimeFormattedAsTimer (topScores [0]) + "\n"
+								+ topNames [1] + " - " + GetTimeFormattedAsTimer (topScores [1]) + "\n"
+								+ topNames [2] + " - " + GetTimeFormattedAsTimer (topScores [2]);
+
+		} else if (thisGameMode == GameModes.GoalScore)
+		{
+			int[] topScores = new int[3];
+			string[] topNames = new string[3];
+
+			topScores [0] = PlayerPrefs.GetInt ("GS_1S", 10);
+			topScores [1] = PlayerPrefs.GetInt ("GS_2S", 8);
+			topScores [2] = PlayerPrefs.GetInt ("GS_3S", 6);
+
+			topNames [0] = PlayerPrefs.GetString ("GS_1N", "Dwight");
+			topNames [1] = PlayerPrefs.GetString ("GS_2N", "Jim");
+			topNames [2] = PlayerPrefs.GetString ("GS_3N", "Pam");
+
+			int thisScore = score;
+			string thisName = PlayerPrefs.GetString ("PlayerName", "Player");
+
+			if (thisScore > topScores[0]) //Score is better than first place
+			{
+				//Move Second place down to third
+				topNames[2] = string.Copy(topNames[1]);
+				topScores[2] = topScores[1];
+
+				//Move first place down to second
+				topNames[1] = string.Copy(topNames[0]);
+				topScores[1] = topScores[0];
+
+				//Replace first place with the new first
+				topScores [0] = thisScore;
+				topNames [0] = thisName;
+
+			} else if (thisScore > topScores[1]) //Score is better than second but not first
+			{
+				//Move Second place down to third
+				topNames[2] = string.Copy(topNames[1]);
+				topScores[2] = topScores[1];
+
+				//Replace second place with the new second
+				topScores [1] = thisScore;
+				topNames [1] = thisName;
+
+			} else if (thisScore > topScores[2]) //Score is better than third but not second or first
+			{
+				//Replace third place with the new third
+				topScores [2] = thisScore;
+				topNames [2] = thisName;
+
+			}
+
+			//Store the new highs
+			PlayerPrefs.SetInt ("GS_1S", topScores [0]);
+			PlayerPrefs.SetInt ("GS_2S", topScores [1]);
+			PlayerPrefs.SetInt ("GS_3S", topScores [2]);
+
+			PlayerPrefs.SetString ("GS_1N", topNames [0]);
+			PlayerPrefs.SetString ("GS_2N", topNames [1]);
+			PlayerPrefs.SetString ("GS_3N", topNames [2]);
+
+			leaderText.text = "Top Scores:\n"
+								+ topNames [0] + " - " + topScores [0].ToString() + "\n"
+								+ topNames [1] + " - " + topScores [1].ToString() + "\n"
+								+ topNames [2] + " - " + topScores [2].ToString();
+
+		} else if (thisGameMode == GameModes.GoalTime)
+		{
+			float[] topScores = new float[3];
+			string[] topNames = new string[3];
+
+			topScores [0] = PlayerPrefs.GetFloat ("GT_1S", 30f);
+			topScores [1] = PlayerPrefs.GetFloat ("GT_2S", 60f);
+			topScores [2] = PlayerPrefs.GetFloat ("GT_3S", 90f);
+
+			topNames [0] = PlayerPrefs.GetString ("GT_1N", "Ash");
+			topNames [1] = PlayerPrefs.GetString ("GT_2N", "Brock");
+			topNames [2] = PlayerPrefs.GetString ("GT_3N", "Misty");
+
+			string thisName = PlayerPrefs.GetString ("PlayerName", "Player");
+
+			if (endTime < topScores[0]) //Time is faster than best time
+			{
+				//Move Second place down to third
+				topNames[2] = string.Copy(topNames[1]);
+				topScores[2] = topScores[1];
+
+				//Move first place down to second
+				topNames[1] = string.Copy(topNames[0]);
+				topScores[1] = topScores[0];
+
+				//Replace first place with the new first
+				topScores [0] = endTime;
+				topNames [0] = thisName;
+
+			} else if (endTime < topScores[1]) //Time is faster than second but not first
+			{
+				//Move Second place down to third
+				topNames[2] = string.Copy(topNames[1]);
+				topScores[2] = topScores[1];
+
+				//Replace second place with the new second
+				topScores [1] = endTime;
+				topNames [1] = thisName;
+
+			} else if (endTime < topScores[2]) //Time is faster than third but not second or first
+			{
+				//Replace third place with the new third
+				topScores [2] = endTime;
+				topNames [2] = thisName;
+
+			}
+
+			//Store the new highs
+			PlayerPrefs.SetFloat ("GT_1S", topScores [0]);
+			PlayerPrefs.SetFloat ("GT_2S", topScores [1]);
+			PlayerPrefs.SetFloat ("GT_3S", topScores [2]);
+
+			PlayerPrefs.SetString ("GT_1N", topNames [0]);
+			PlayerPrefs.SetString ("GT_2N", topNames [1]);
+			PlayerPrefs.SetString ("GT_3N", topNames [2]);
+
+			leaderText.text = "Top Times:\n"
+								+ topNames [0] + " - " + GetTimeFormattedAsTimer (topScores [0]) + "\n"
+								+ topNames [1] + " - " + GetTimeFormattedAsTimer (topScores [1]) + "\n"
+								+ topNames [2] + " - " + GetTimeFormattedAsTimer (topScores [2]);
 
 		}
 

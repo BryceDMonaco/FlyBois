@@ -8,10 +8,12 @@ public class MenuController : MonoBehaviour {
 
 	public InputField nameField;
 	public Text nameNoticeText;
+	public Button resetButton;
 
 	// Use this for initialization
 	void Start () {
-		Time.timeScale = 1f;
+		Time.timeScale = 1f; 
+		
 	}
 	
 	// Update is called once per frame
@@ -39,7 +41,7 @@ public class MenuController : MonoBehaviour {
 
 		} else if (levelIndex == 1) //TargetTime
 		{
-
+			SceneManager.LoadScene ("TargetTime");
 
 		} else if (levelIndex == 2) //GoalScore
 		{
@@ -52,4 +54,5 @@ public class MenuController : MonoBehaviour {
 		}
 
 	}
+
 }

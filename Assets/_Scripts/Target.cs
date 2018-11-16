@@ -31,6 +31,7 @@ public class Target : MonoBehaviour {
         if (health <= 0)
         {
             gameManager.UpdateScore(pointsWorth);
+            gameManager.MarkTargetDestroyed ();
 
             if (gameManager.thisGameMode == GameModes.TargetScore)
             {
