@@ -8,7 +8,7 @@ public class MenuController : MonoBehaviour {
 
 	public InputField nameField;
 	public Text nameNoticeText;
-	public Button resetButton;
+	private int resetCount = 0;
 
 	// Use this for initialization
 	void Start () {
@@ -27,7 +27,8 @@ public class MenuController : MonoBehaviour {
 
 		nameNoticeText.gameObject.SetActive (true);
 
-		nameNoticeText.text = "Player name set to " + PlayerPrefs.GetString ("PlayerName", "Player");
+		nameNoticeText.text = "Player name set to " + PlayerPrefs.GetString ("PlayerName", "Player")
+								+ "\n(This will not change existing scores)";
 
 		return;
 
@@ -50,6 +51,31 @@ public class MenuController : MonoBehaviour {
 		} else if (levelIndex == 3) //GoalTime
 		{
 
+
+		}
+
+	}
+
+	public void ResetStats ()
+	{
+		resetCount++;
+
+		if (resetCount == 1)
+		{
+			nameNoticeText.gameObject.SetActive(true);
+			nameNoticeText.text = "WARNING: Press again to reset stats.";
+
+		} else if (resetCount == 2)
+		{
+			string name = PlayerPrefs.GetString ("PlayerName", "Player"); 
+
+			resetCount = 0;
+
+			PlayerPrefs.DeleteAll ();
+
+			nameNoticeText.text = "All stats reset.";
+
+			PlayerPrefs.SetString ("PlayerName", name);
 
 		}
 
