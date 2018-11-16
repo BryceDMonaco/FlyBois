@@ -16,6 +16,7 @@ public class GameManager : MonoBehaviour {
 	public Text primaryText;
 	public Text secondaryText;
 	public Text leaderText;
+	public GameObject leaderPanel;
 	public Button menuButton;
 
 	[Header("Game Mode Selection")]
@@ -103,7 +104,8 @@ public class GameManager : MonoBehaviour {
 
 			GenerateLeaderboard ();
 
-			leaderText.gameObject.SetActive (true);
+			//leaderText.gameObject.SetActive (true);
+			leaderPanel.SetActive (true);
 			menuButton.gameObject.SetActive (true);
 
 			hasHandledGameOver = true;
@@ -135,7 +137,7 @@ public class GameManager : MonoBehaviour {
 		} if (mode == GameModes.TargetTime && numberOfTargetsRemaining <= 0) //All targets destroyed
 		{
 			isGameOver = true;
-			endTime = Time.time;
+			endTime = Time.time - startTime; //shouldCountDown is false
 			primaryText.text = "Time: " + GetCurrentTimeFormattedAsTimer ();
 			secondaryText.text = "All Targets Destroyed!";
 
@@ -143,7 +145,7 @@ public class GameManager : MonoBehaviour {
 		{
 			isGameOver = true;
 			primaryText.text = "Lap Complete!";
-			endTime = Time.time;
+			endTime = Time.time - startTime; //shouldCountDown is false
 			secondaryText.text = "Time: " + GetCurrentTimeFormattedAsTimer ();
 
 		} else if (mode ==GameModes.GoalScore && Time.time >= (startTime + timeAllowed)) //Timer over
