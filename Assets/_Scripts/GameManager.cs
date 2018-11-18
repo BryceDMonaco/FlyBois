@@ -68,7 +68,15 @@ public class GameManager : MonoBehaviour {
 
 		} else 
 		{
+			foreach (Goal g in goals)
+			{
+				g.gameObject.SetActive (false);
+
+			}
+
 			currentGoal = goals[currentGoalIndex];
+
+			currentGoal.gameObject.SetActive (true);
 
 			arrow.gameObject.SetActive(true);
 			arrow.target = currentGoal.transform;
@@ -296,11 +304,13 @@ public class GameManager : MonoBehaviour {
 
 	}
 
-	void EnableNextGoal ()
+	public void EnableNextGoal ()
 	{
 		currentGoalIndex++;
 
-		if (currentGoalIndex < goals.Length && thisGameMode == GameModes.GoalTime) //Check to make sure not going out of bounds
+		currentGoal.gameObject.SetActive (false);
+
+		if (currentGoalIndex < goals.Length) //Check to make sure not going out of bounds
 		{
 			currentGoal = goals [currentGoalIndex];
 
@@ -312,6 +322,10 @@ public class GameManager : MonoBehaviour {
 
 
 		}
+
+		arrow.target = currentGoal.transform;
+
+		currentGoal.gameObject.SetActive (true);
 
 		return;
 
@@ -447,9 +461,9 @@ public class GameManager : MonoBehaviour {
 			int[] topScores = new int[3];
 			string[] topNames = new string[3];
 
-			topScores [0] = PlayerPrefs.GetInt ("GS_1S", 10);
-			topScores [1] = PlayerPrefs.GetInt ("GS_2S", 8);
-			topScores [2] = PlayerPrefs.GetInt ("GS_3S", 6);
+			topScores [0] = PlayerPrefs.GetInt ("GS_1S", 9);
+			topScores [1] = PlayerPrefs.GetInt ("GS_2S", 7);
+			topScores [2] = PlayerPrefs.GetInt ("GS_3S", 4);
 
 			topNames [0] = PlayerPrefs.GetString ("GS_1N", "Dwight");
 			topNames [1] = PlayerPrefs.GetString ("GS_2N", "Jim");

@@ -4,11 +4,14 @@ using UnityEngine;
 
 public class Goal : MonoBehaviour {
 
+	public GameManager gameManager;
 	public ParticleSystem confetti;
 
 	// Use this for initialization
-	void Start () {
-		
+	void Start () 
+	{
+		gameManager = FindObjectOfType <GameManager> ();
+
 	}
 	
 	// Update is called once per frame
@@ -20,6 +23,8 @@ public class Goal : MonoBehaviour {
 	{
 		if (col.gameObject.name == "PlaneObject") //Checking for a tag would be faster
 		{
+			gameManager.UpdateScore (1);
+			gameManager.EnableNextGoal ();
 			confetti.Emit (30);
 
 		}

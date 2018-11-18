@@ -14,4 +14,10 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/TargetTime.unity
     guid: 06e96afd4f1f945dd9afbda232a87599
+  - enabled: 1
+    path: Assets/Scenes/GoalScore.unity
+    guid: 80bbcbff59489469caa8e82fbbd8507e
+  - enabled: 1
+    path: Assets/Scenes/GoalTime.unity
+    guid: 05f4358c7d979470a9441661a31e2be0
   m_configObjects: {}

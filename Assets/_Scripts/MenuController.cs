@@ -46,11 +46,11 @@ public class MenuController : MonoBehaviour {
 
 		} else if (levelIndex == 2) //GoalScore
 		{
-
+			SceneManager.LoadScene("GoalScore");
 
 		} else if (levelIndex == 3) //GoalTime
 		{
-
+			SceneManager.LoadScene("GoalTime");
 
 		}
 
