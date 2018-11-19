@@ -67,6 +67,8 @@ public class PlanePilot : MonoBehaviour {
     public GameObject explosion;
     public GameObject planeArt;
 
+    public AudioSource engineSound;
+
     //--------------------------------------------------------------------------------------------------------------//
     [Header("Control Variables")]
     public KeyCode yawLeft = KeyCode.Q;
@@ -174,6 +176,8 @@ public class PlanePilot : MonoBehaviour {
 	// Update is called once per frame
 	void Update ()
     {
+        engineSound.pitch = 0.95f + 0.2f * ((speed / 25f) - (7f / 5f));
+
         //myInDevice = InputManager.ActiveDevice;
 
         Vector3 moveCamTo = transform.position - transform.forward * 10f + Vector3.up * 5f;
@@ -362,6 +366,8 @@ public class PlanePilot : MonoBehaviour {
 
     IEnumerator SpawnTimer ()
     {
+        engineSound.Pause();
+
         planeArt.SetActive(false);
 
         yield return new WaitForSeconds(5f);
@@ -375,6 +381,8 @@ public class PlanePilot : MonoBehaviour {
         speed = 50f;
 
         transform.rotation = spawnRotation;
+
+        engineSound.UnPause();
 
     }
 

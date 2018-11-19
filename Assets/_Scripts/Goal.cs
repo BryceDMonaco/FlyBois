@@ -23,6 +23,7 @@ public class Goal : MonoBehaviour {
 	{
 		if (col.gameObject.name == "PlaneObject") //Checking for a tag would be faster
 		{
+			transform.GetComponent <AudioSource> ().Play(0);
 			gameManager.UpdateScore (1);
 			gameManager.EnableNextGoal ();
 			confetti.Emit (30);
