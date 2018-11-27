@@ -240,6 +240,8 @@ public class PlanePilot : MonoBehaviour {
 
             //Check if a button is held down, uses the color, but I can't find a better way
             bool greenButtonHeld = greenButton.GetComponent<CanvasRenderer>().GetColor() == greenButton.GetComponent<Button>().colors.pressedColor * greenButton.GetComponent<Button>().colors.colorMultiplier;
+            bool redButtonHeld = redButton.GetComponent<CanvasRenderer>().GetColor() == redButton.GetComponent<Button>().colors.pressedColor * redButton.GetComponent<Button>().colors.colorMultiplier;
+
 
             //Firing Controls
             if (canShoot && isAlive && ((!usingKeyboard && !usingOnScreen && myInDevice.RightTrigger.IsPressed) || greenButtonHeld || (usingKeyboard && Input.GetKey(KeyCode.Space))))
@@ -289,6 +291,19 @@ public class PlanePilot : MonoBehaviour {
                     shotCycle = 0;
 
                 }
+            }
+
+            //Decelerate
+            if (redButtonHeld)
+            {
+                speed -= 1;
+
+                if (speed < 35f)
+                {
+                    speed = 35f;
+
+                }
+
             }
         }
     }
