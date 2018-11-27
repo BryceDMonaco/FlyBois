@@ -314,7 +314,7 @@ public class GameManager : MonoBehaviour {
 		{
 			currentGoal = goals [currentGoalIndex];
 
-		}  else
+		}  else if (thisGameMode != GameModes.GoalTime)
 		{
 			currentGoalIndex = 0;
 			lapNumber++;

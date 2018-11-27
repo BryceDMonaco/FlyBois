@@ -169,6 +169,7 @@ public class PlanePilot : MonoBehaviour {
 
         GetFlapRestingRotation();
 
+        engineSound.UnPause ();
 
 
     }
@@ -177,6 +178,12 @@ public class PlanePilot : MonoBehaviour {
 	void Update ()
     {
         engineSound.pitch = 0.95f + 0.2f * ((speed / 25f) - (7f / 5f));
+
+        if (manager.isGameOver)
+        {
+            engineSound.Pause ();
+
+        }
 
         //myInDevice = InputManager.ActiveDevice;
 
